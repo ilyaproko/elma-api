@@ -15,45 +15,50 @@ namespace ELMA_API
             Logging.StartApp();
             Logging.Info(InfoTitle.launch, "start elma-api application is successful");
             
+            // get environment variables
             var env = new EnvModule(".env");
-
             // token для http-зарпосов к серверу ELMA
             string token = env.getEnv("TOKEN");           
-            // password
             string password = env.getEnv("PASSWORD");
+            string hostaddress = env.getEnv("HOSTADDRESS");
 
             // -> получение AuthToken и SessionToken для запросов к серверу ELMA
             var auth = GetAuth(token, password); 
 
+            // экземпляр класса с методами для запросов к серверу Elma
+            // для получение данных от сервера elma, в основном данные из
+            // объектов справочников
+            var reqElma = new RequestElma(hostaddress);
+
+            // экземпляр класса для загрузки данных на сервер Elma
+            // которые есть в БД но отсутвуют на сервере Elma
+            var uploadData = new UploadData(auth, hostaddress);
+
             // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-            UploadData.EducationalPlans(
-                auth, // заголовки запроса небходимые для аунтефикации на сервере elma
+            uploadData.EducationalPlans(
                 typeUid_uchebnyePlany: TypesUid_ELMA.edu_plans,
                 // получение данных по справочнику "учебные планы" из сервера Elma
-                eduPlansElma: RequestsElma.educationalPlans(auth, TypesUid_ELMA.edu_plans),
+                eduPlansElma: reqElma.educationalPlans(auth, TypesUid_ELMA.edu_plans),
                 // получение данных "учебные планы" из базы данных деканат
-                eduPlansDB: RequestsDatabase.getUchebnyePlany());
+                eduPlansDB: RequestDatabase.getUchebnyePlany());
 
             // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-            UploadData.Faculties(
-                auth, // заголовки запроса небходимые для аунтефикации на сервере elma
+            uploadData.Faculties(
                 typeUid_faculties: TypesUid_ELMA.faculties,
-                facultiesElma: RequestsElma.faculties(auth, TypesUid_ELMA.faculties), // факультеты из Elma server
-                facultiesDB: RequestsDatabase.getFakuljtety()); // факультеты из БД деканат
+                facultiesElma: reqElma.faculties(auth, TypesUid_ELMA.faculties), // факультеты из Elma server
+                facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
 
             // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-            UploadData.Disciplines(
-                auth, // заголовки запроса небходимые для аунтефикации на сервере elma
+            uploadData.Disciplines(
                 typeUid_discipline: TypesUid_ELMA.disciplines,
-                disciplinesElma: RequestsElma.disciplines(auth, TypesUid_ELMA.disciplines), // дисциплины из Elma server
-                disciplinesDB: RequestsDatabase.getDisciplines()); // дисциплины из БД деканат
+                disciplinesElma: reqElma.disciplines(auth, TypesUid_ELMA.disciplines), // дисциплины из Elma server
+                disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
             // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-            UploadData.DirecsPre(
-                auth, // заголовки запроса небходимые для аунтефикации на сервере elma
+            uploadData.DirecsPre(
                 typeUid_direcsPre: TypesUid_ELMA.directions_pre,
-                direcsPreElma: RequestsElma.directions_pre(auth, TypesUid_ELMA.directions_pre), // напр. подготов. из Elma server
-                direcsPreDB: RequestsDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
+                direcsPreElma: reqElma.directions_pre(auth, TypesUid_ELMA.directions_pre), // напр. подготов. из Elma server
+                direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
             // var test = BaseHttp.request(
             //     url: "http://127.0.0.1:8000/API/REST/Entity/Load?type={TYPEUID}&id={ENTITYID}"
@@ -64,11 +69,10 @@ namespace ELMA_API
             // );
 
             // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-            UploadData.Departments(
-                auth, // заголовки запроса небходимые для аунтефикации на сервере elma
+            uploadData.Departments(
                 typeUid_department: TypesUid_ELMA.department,
-                departmentsElma: RequestsElma.departments(auth, TypesUid_ELMA.department), // кафедры из Elma server
-                departmentsDB: RequestsDatabase.getDepartments()); // кафедры из БД деканат
+                departmentsElma: reqElma.departments(auth, TypesUid_ELMA.department), // кафедры из Elma server
+                departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
         }
 
         static public AuthJsonResponse GetAuth(string applicationToken, string passW)

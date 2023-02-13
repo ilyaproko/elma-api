@@ -125,5 +125,29 @@ namespace ELMA_API
         public string HeadOfDepartment { get; set; } // заведущий кафедрой
     }
 
+
+    // ! Main Structure of Elma Object in Server ! // // // // // // // // // // // // // // // // // // // //
+    public class Data
+    {
+        public List<Item> Items { get; set; }
+        public object Value { get; set; }
+    }
+
+    public class Item
+    {
+        public Data Data { get; set; }
+        public List<object> DataArray { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class Root
+    {
+        public List<Item> Items { get; set; }
+        public object Value { get; set; }
+    }
+
+    // ! END ! // // // // // // // // // // // // // // // // // // // //
+
 }
 

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ELMA_API
 {
-    class RequestsDatabase
+    class RequestDatabase
     {
 
         // создание экземпляра подключения к БД MS Sql Server

@@ -3,8 +3,15 @@ using System.Collections.Generic;
 
 namespace ELMA_API
 {
-    class UploadData
+    class UploadData : BaseHttp
     {
+        public AuthJsonResponse authenticationJson;
+
+        public UploadData(AuthJsonResponse authenticationJson, string hostaddress) : base(hostaddress) {
+            this.authenticationJson = authenticationJson;
+        }
+
+
         /// <summary>
         /// производит вызгрузку отсутсвующих данных на сервере ELMA
         /// </summary>
@@ -12,8 +19,7 @@ namespace ELMA_API
         /// <param name="typeUid_uchebnyePlany">уникальный идентификатор типа на сервере ELMA для спраовчника 'учебные планы'</param>
         /// <param name="plans">в данном объекте есть поле educational_plans_upload в котором находсят данные которых 
         /// нет на сервер ELMA и которые соотвественно функция загрзут</param>
-        public static void EducationalPlans(
-            AuthJsonResponse authenticationJson,
+        public void EducationalPlans(
             string typeUid_uchebnyePlany,
             List<string> eduPlansElma,
             List<string> eduPlansDB)
@@ -51,10 +57,10 @@ namespace ELMA_API
                     ""Value"": null
                 }".Replace("INJECTED_VALUE_IN_TEXT", plan);
 
-                var responseInsert = BaseHttp.request(
-                    url: String.Format("http://127.0.0.1:8000/API/REST/Entity/Insert/{0}", typeUid_uchebnyePlany),
+                var responseInsert = this.request(
+                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_uchebnyePlany),
                     method: "POST",
-                    authJson: authenticationJson,
+                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 
@@ -70,8 +76,7 @@ namespace ELMA_API
 
         }
 
-        public static void Faculties(
-            AuthJsonResponse authenticationJson,
+        public void Faculties(
             string typeUid_faculties,
             List<FacultyGuide> facultiesElma,
             List<FacultyGuide> facultiesDB)
@@ -117,10 +122,10 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_LONG_NAME", facultyMissed.long_name) // заменяем значение в тексте
                 .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.short_name); // заменяем значение в тексте
 
-                var responseInsert = BaseHttp.request(
-                    url: String.Format("http://127.0.0.1:8000/API/REST/Entity/Insert/{0}", typeUid_faculties),
+                var responseInsert = this.request(
+                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_faculties),
                     method: "POST",
-                    authJson: authenticationJson,
+                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
                 // добавление результата запроса на внедрение данных в список
@@ -134,8 +139,7 @@ namespace ELMA_API
             Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected faculties to elma-server");
         }
 
-        public static void Disciplines(
-            AuthJsonResponse authenticationJson,
+        public void Disciplines(
             string typeUid_discipline,
             List<String> disciplinesElma,
             List<String> disciplinesDB)
@@ -170,10 +174,10 @@ namespace ELMA_API
                 }"
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", discipline); // заменяем значение в тексте
 
-                var responseInsert = BaseHttp.request(
-                    url: String.Format("http://127.0.0.1:8000/API/REST/Entity/Insert/{0}", typeUid_discipline),
+                var responseInsert = this.request(
+                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_discipline),
                     method: "POST",
-                    authJson: authenticationJson,
+                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 
@@ -187,10 +191,8 @@ namespace ELMA_API
             Logging.Info(InfoTitle.missed, $"{disciplinesMissed.Count} missed disciplines plans");
             Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected disciplines to elma-server");
         }
-
-        
-        public static void DirecsPre( // загрузка направлений подготовки
-            AuthJsonResponse authenticationJson,
+     
+        public void DirecsPre( // загрузка направлений подготовки
             string typeUid_direcsPre,
             List<DirectionPreparation> direcsPreElma,
             List<DirectionPreparation> direcsPreDB)
@@ -247,10 +249,10 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", directPre.Naimenovanie) // заменяем значение в тексте
                 .Replace("INJECTED_VALUE_KOD", directPre.Kod); // заменяем значение в тексте
 
-                var responseInsert = BaseHttp.request(
-                    url: String.Format("http://127.0.0.1:8000/API/REST/Entity/Insert/{0}", typeUid_direcsPre),
+                var responseInsert = this.request(
+                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_direcsPre),
                     method: "POST",
-                    authJson: authenticationJson,
+                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 
@@ -266,8 +268,7 @@ namespace ELMA_API
             Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected directions preparations to elma-server");
         }
     
-        public static void Departments( // загрузка кафедр
-            AuthJsonResponse authenticationJson,
+        public void Departments( // загрузка кафедр
             string typeUid_department,
             List<Department> departmentsElma,
             List<DepartmentFromDB> departmentsDB

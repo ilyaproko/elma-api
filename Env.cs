@@ -29,6 +29,7 @@ namespace ELMA_API
 
                 foreach (var item in lines)
                 {
+                    // check if line is empty or line doesn't include symbol =
                     if (!String.IsNullOrEmpty(item) || item.IndexOf("=") != -1) {
                         string key = item.Substring(0, item.IndexOf("=")).Trim();
                         string value = item.Substring(item.IndexOf("=") + 1).Trim();
