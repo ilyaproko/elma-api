@@ -194,5 +194,56 @@ namespace ELMA_API
             return departments_db;
         }
 
+        public static void getGroups() 
+        {
+            // строка запроса к БД для выборки уникальных значений "кафедры"
+            string query_string = @"select
+	                    distinct dbo.ШвебельГруппы.Название as 'НазваниеГруппы',
+						dbo.ШвебельГруппы.Код as 'Код',
+	                    trim(dbo.Факультеты.Сокращение) as 'ФакультетСокращенное',
+	                    dbo.ШвебельГруппы.Шифр as 'НаправленияПодготовки',
+	                    dbo.ШвебельГруппы.КодПрофКафедры as 'КодВыпускающейКафедры',
+	                    trim(dbo.ШвебельГруппы.Expr2) as 'ПрофильПодготовки',
+	                    dbo.ШвебельГруппы.Курс as 'Курс',
+	                    dbo.ШвебельГруппы.Учебный_План as 'УчебныйПлан',
+	                    dbo.ШвебельГруппы.ФормаОбучения as 'ФормаОбучения'
+                    from dbo.ШвебельГруппы
+                    join dbo.Факультеты on dbo.Факультеты.Факультет = dbo.ШвебельГруппы.Факультет
+					order by dbo.ШвебельГруппы.Название, 'Курс' desc;";
+        
+            // Получение данных из БД по запросу sql
+            DataTable table = requestDB(query_string: query_string, database: database);
+
+            // list storage for unique Entity from DATABASE dekanat table Группы
+            List<GroupFromDB> groups_db = new List<GroupFromDB>();
+            // list unique group's names
+            List<string> uniqueGroupsNames = new List<string>();
+
+
+            foreach (DataRow row in table.Rows) 
+            {
+                if (!uniqueGroupsNames.Contains(row.Field<String>("НазваниеГруппы")))
+                {
+                    groups_db.Add(new GroupFromDB() {
+                        NameGroup = row.Field<string>("НазваниеГруппы"),
+                        Code = row.Field<string>("Код")
+                    });
+
+                    uniqueGroupsNames.Add(row.Field<String>("НазваниеГруппы"));
+                };
+                
+            }
+
+                        // public string NameGroup { get; set; } // название группы
+                        // public string Code { get; set; } // код
+                        // public string FacultyShort { get; set; } // факульетет сокращенно
+                        // public string DirectionPreparation { get; set; } // направление подготовки
+                        // public string CodeKafedy { get; set; } // код кафедры
+                        // public string ProfilePreparation { get; set; } // профиль подготовки
+                        // public string Kurs { get; set; } // курс
+                        // public string EducationalPlan { get; set; } // учебный план
+                        // public string FormStudy { get; set; } // форма обучения
+        }
+
     }
 }

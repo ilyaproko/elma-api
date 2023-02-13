@@ -23,6 +23,7 @@ namespace ELMA_API
             string hostaddress = env.getEnv("HOSTADDRESS");
 
             var baseHttpElma = new BaseHttp(hostaddress, token, user, password);
+            
             // экземпляр класса с методами для запросов к серверу Elma
             // для получение данных от сервера elma, в основном данные из
             // объектов справочников
@@ -32,30 +33,28 @@ namespace ELMA_API
             var uploadData = new UploadData(baseHttpElma);
 
             // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-            uploadData.EducationalPlans(
-                typeUid_uchebnyePlany: TypesUid.edu_plans,
-                // получение данных по справочнику "учебные планы" из сервера Elma
-                eduPlansElma: reqElma.educationalPlans(TypesUid.edu_plans),
-                // получение данных "учебные планы" из базы данных деканат
-                eduPlansDB: RequestDatabase.getUchebnyePlany());
+            // uploadData.EducationalPlans(
+            //     typeUid_uchebnyePlany: TypesUid.edu_plans,
+            //     eduPlansElma: reqElma.educationalPlans(TypesUid.edu_plans), // "учебные планы" из сервера Elma
+            //     eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
 
             // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-            uploadData.Faculties(
-                typeUid_faculties: TypesUid.faculties,
-                facultiesElma: reqElma.faculties(TypesUid.faculties), // факультеты из Elma server
-                facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
+            // uploadData.Faculties(
+            //     typeUid_faculties: TypesUid.faculties,
+            //     facultiesElma: reqElma.faculties(TypesUid.faculties), // факультеты из Elma server
+            //     facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
 
             // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-            uploadData.Disciplines(
-                typeUid_discipline: TypesUid.disciplines,
-                disciplinesElma: reqElma.disciplines(TypesUid.disciplines), // дисциплины из Elma server
-                disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
+            // uploadData.Disciplines(
+            //     typeUid_discipline: TypesUid.disciplines,
+            //     disciplinesElma: reqElma.disciplines(TypesUid.disciplines), // дисциплины из Elma server
+            //     disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
             // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-            uploadData.DirecsPre(
-                typeUid_direcsPre: TypesUid.directions_pre,
-                direcsPreElma: reqElma.directions_pre(TypesUid.directions_pre), // напр. подготов. из Elma server
-                direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
+            // uploadData.DirecsPre(
+            //     typeUid_direcsPre: TypesUid.directions_pre,
+            //     direcsPreElma: reqElma.directions_pre(TypesUid.directions_pre), // напр. подготов. из Elma server
+            //     direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
             // var test = BaseHttp.request(
             //     url: "http://127.0.0.1:8000/API/REST/Entity/Load?type={TYPEUID}&id={ENTITYID}"
@@ -66,12 +65,12 @@ namespace ELMA_API
             // );
 
             // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-            uploadData.Departments(
-                typeUid_department: TypesUid.department,
-                departmentsElma: reqElma.departments(TypesUid.department), // кафедры из Elma server
-                departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
+            // uploadData.Departments(
+            //     typeUid_department: TypesUid.department,
+            //     departmentsElma: reqElma.departments(TypesUid.department), // кафедры из Elma server
+            //     departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            
+            reqElma.groups(TypesUid.groups);
             
         }
 
@@ -90,7 +89,7 @@ namespace ELMA_API
             // кафедры
             public static readonly string department = "d65309ba-779a-4074-82a0-55560d8e4674"; 
 
-
+            // группы
             public static readonly string groups = "1b5dca14-da97-4a7e-816f-b3531276149c";
         }
     }

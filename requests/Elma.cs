@@ -23,7 +23,7 @@ namespace ELMA_API
             var getAllPlans = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_UchebnyePlany),
                 method: "GET"
-            ); // ! -> тип Тела-Ответа вернет как string(json)
+            ); // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<RowResponseEduPlan> resJsonUchebnyePlany = JsonConvert.DeserializeObject<List<RowResponseEduPlan>>(getAllPlans);
@@ -47,7 +47,7 @@ namespace ELMA_API
             var getAllFaculties = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_faculties),
                 method: "GET"
-            ); // ! -> тип Тела-Ответа вернет как string(json)
+            ); // -> тип Тела-Ответа вернет как string(json)
             
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<RowResponseFaculty> resJsonFaculties = JsonConvert.DeserializeObject<List<RowResponseFaculty>>(getAllFaculties);
@@ -75,7 +75,7 @@ namespace ELMA_API
             var getAllDisciplines = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_discipline),
                 method: "GET"
-            ); // ! -> тип Тела-Ответа вернет как string(json)
+            ); // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Discipline> resJsonDiscipline = JsonConvert.DeserializeObject<List<Discipline>>(getAllDisciplines);
@@ -100,7 +100,7 @@ namespace ELMA_API
             var getAllDirectionPre = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_directionPre),
                 method: "GET"
-            ); // ! -> тип Тела-Ответа вернет как string(json)
+            ); // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<DirectionsPre> resJsonDirectionsPre = 
@@ -130,7 +130,7 @@ namespace ELMA_API
             var getAllDepartments = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_department),
                 method: "GET"
-            ); // ! -> тип Тела-Ответа вернет как string(json)
+            ); // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Department> resJsonDepartments = 
@@ -139,6 +139,27 @@ namespace ELMA_API
             // Console.WriteLine(getAllDepartments);
 
             return resJsonDepartments;
+        }
+
+
+        public List<String> groups(string typeUidGroups)
+        {
+            var getGroups = this.baseHttp.request(
+                path: String.Format("/API/REST/Entity/Query?type={0}", typeUidGroups),
+                method: "GET"
+            ); // -> тип Тела-Ответа вернет как string(json)
+
+            List<string> uniqueNameGroups = new List<string>();
+
+            // преобразование ответа от сервера типа string(json) в объектный тип
+            List<Root> respGroups = JsonConvert.DeserializeObject<List<Root>>(getGroups);
+
+            foreach (var group in respGroups)
+                foreach (var item in group.Items)
+                    if (item.Name == "Naimenovanie" 
+                        && !uniqueNameGroups.Contains(item.Value)) uniqueNameGroups.Add(item.Value);
+
+            return new List<string>();
         }
     }
 }

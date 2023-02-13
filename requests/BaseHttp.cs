@@ -44,7 +44,8 @@ namespace ELMA_API
         private AuthJsonResponse getAuth(string applicationToken, string user, string password)
         {
             //создаем веб запрос
-            HttpWebRequest req = WebRequest.Create(String.Format("http://localhost:8000/API/REST/Authorization/LoginWith?username={0}", user)) as HttpWebRequest;
+            HttpWebRequest req = WebRequest.Create(String.Format(
+                "http://{0}/API/REST/Authorization/LoginWith?username={1}", hostaddress, user)) as HttpWebRequest;
             req.Headers.Add("ApplicationToken", applicationToken);
             req.Method = "POST";
             req.Timeout = 10000;
@@ -56,6 +57,11 @@ namespace ELMA_API
             req.ContentLength = sentData.Length;
             Stream sendStream = req.GetRequestStream();
             sendStream.Write(sentData, 0, sentData.Length);
+
+            // Console.WriteLine($"\"{password}\"");
+            // Console.WriteLine(user);
+            // Console.WriteLine(password);
+            // Console.WriteLine(this.hostaddress);
 
             //получение ответа
             var res = req.GetResponse() as HttpWebResponse;

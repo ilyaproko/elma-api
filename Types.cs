@@ -118,6 +118,20 @@ namespace ELMA_API
     }
 
 
+    public class GroupFromDB 
+    {
+        public string NameGroup { get; set; } // название группы
+        public string Code { get; set; } // код
+        public string FacultyShort { get; set; } // факульетет сокращенно
+        public string DirectionPreparation { get; set; } // направление подготовки
+        public string CodeKafedy { get; set; } // код кафедры
+        public string ProfilePreparation { get; set; } // профиль подготовки
+        public string Kurs { get; set; } // курс
+        public string EducationalPlan { get; set; } // учебный план
+        public string FormStudy { get; set; } // форма обучения
+    }
+
+
     // ! Main Structure of Elma Object in Server ! // // // // // // // // // // // // // // // // // // // //
     public class Data
     {
