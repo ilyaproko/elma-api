@@ -3,14 +3,13 @@ using System.Collections.Generic;
 
 namespace ELMA_API
 {
-    class UploadData : BaseHttp
+    class UploadData
     {
-        public AuthJsonResponse authenticationJson;
+        public BaseHttp baseHttp;
 
-        public UploadData(AuthJsonResponse authenticationJson, string hostaddress) : base(hostaddress) {
-            this.authenticationJson = authenticationJson;
+        public UploadData(BaseHttp baseHttp) {
+            this.baseHttp = baseHttp;
         }
-
 
         /// <summary>
         /// производит вызгрузку отсутсвующих данных на сервере ELMA
@@ -57,10 +56,9 @@ namespace ELMA_API
                     ""Value"": null
                 }".Replace("INJECTED_VALUE_IN_TEXT", plan);
 
-                var responseInsert = this.request(
+                var responseInsert = this.baseHttp.request(
                     path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_uchebnyePlany),
                     method: "POST",
-                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 
@@ -122,10 +120,9 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_LONG_NAME", facultyMissed.long_name) // заменяем значение в тексте
                 .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.short_name); // заменяем значение в тексте
 
-                var responseInsert = this.request(
+                var responseInsert = this.baseHttp.request(
                     path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_faculties),
                     method: "POST",
-                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
                 // добавление результата запроса на внедрение данных в список
@@ -174,10 +171,9 @@ namespace ELMA_API
                 }"
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", discipline); // заменяем значение в тексте
 
-                var responseInsert = this.request(
+                var responseInsert = this.baseHttp.request(
                     path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_discipline),
                     method: "POST",
-                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 
@@ -249,10 +245,9 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", directPre.Naimenovanie) // заменяем значение в тексте
                 .Replace("INJECTED_VALUE_KOD", directPre.Kod); // заменяем значение в тексте
 
-                var responseInsert = this.request(
+                var responseInsert = this.baseHttp.request(
                     path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_direcsPre),
                     method: "POST",
-                    authJson: this.authenticationJson,
                     body: textReqInsert
                 );
 

@@ -2,14 +2,6 @@
 
 namespace ELMA_API
 {
-    // для обпределение модели ответа в формате json, нужен для Newtonsoft.Json.JsonConvert.DeserailizeObject()
-    class AuthJsonResponse
-    {
-        public string AuthToken { get; set; }
-        public string CurrentUserId { get; set; }
-        public string Lang { get; set; }
-        public string SessionToken { get; set; }
-    }
 
     public class CellResponseEduPlan
     {

@@ -7,53 +7,22 @@ using System.Text;
 
 namespace ELMA_API
 {
-    class BaseHttp
+    class RequestElma
     {
-        protected string hostaddress;
+        public BaseHttp baseHttp;
 
-        public BaseHttp(string hostaddress) {
-            // get environment variable localhost address
-            this.hostaddress = hostaddress;
-        }
-
-        public String request(String path, String method, AuthJsonResponse authJson, String body = null)
+        public RequestElma(BaseHttp baseHttp) 
         {
-            HttpWebRequest req = WebRequest.Create(String.Format("http://" + this.hostaddress + path)) as HttpWebRequest;
-            req.Method = method;
-            req.Headers.Add("AuthToken", authJson.AuthToken);
-            req.Headers.Add("SessionToken", authJson.SessionToken);
-            req.Timeout = 10000;
-            req.ContentType = "application/json; charset=utf-8";
-
-            // * body request
-            if (body != null) {
-                var sendBody = Encoding.UTF8.GetBytes(body ?? "");
-                req.ContentLength = sendBody.Length;
-                Stream sendStream = req.GetRequestStream();
-                sendStream.Write(sendBody, 0, sendBody.Length);
-            }
-            
-            var res = req.GetResponse() as HttpWebResponse;
-            var resStream = res.GetResponseStream();
-            var sr = new StreamReader(resStream, Encoding.UTF8);
-
-            return sr.ReadToEnd();
+            this.baseHttp = baseHttp;
         }
-    }
 
-    class RequestElma : BaseHttp
-    {
-
-        public RequestElma(string hostaddress) : base(hostaddress) {}
-
-        public List<string> educationalPlans(AuthJsonResponse authenticationJson, string typeUid_UchebnyePlany)
+        public List<string> educationalPlans(string typeUid_UchebnyePlany)
         {
             // ! -> typeUid_UchebnyePlany уникальный индентификатор для справочников 'учебные планы' 
 
-            var getAllPlans = this.request(
+            var getAllPlans = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_UchebnyePlany),
-                method: "GET",
-                authJson: authenticationJson
+                method: "GET"
             ); // ! -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -71,14 +40,13 @@ namespace ELMA_API
 
         }
         
-        public List<FacultyGuide> faculties(AuthJsonResponse authenticationJson, string typeUid_faculties)
+        public List<FacultyGuide> faculties(string typeUid_faculties)
         {
             // ! -> typeUid_faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
 
-            var getAllFaculties = this.request(
+            var getAllFaculties = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_faculties),
-                method: "GET",
-                authJson: authenticationJson
+                method: "GET"
             ); // ! -> тип Тела-Ответа вернет как string(json)
             
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -100,14 +68,13 @@ namespace ELMA_API
             return faculties_elma;
         }
 
-        public List<String> disciplines(AuthJsonResponse authenticationJson, string typeUid_discipline)
+        public List<String> disciplines(string typeUid_discipline)
         {
             // ! -> typeUid_discipline уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
 
-            var getAllDisciplines = this.request(
+            var getAllDisciplines = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_discipline),
-                method: "GET",
-                authJson: authenticationJson
+                method: "GET"
             ); // ! -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -126,14 +93,13 @@ namespace ELMA_API
             return disciplines;
         }
 
-        public List<DirectionPreparation> directions_pre(AuthJsonResponse authenticationJson, string typeUid_directionPre)
+        public List<DirectionPreparation> directions_pre(string typeUid_directionPre)
         {
             // ! -> typeUid_directionPre уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
 
-            var getAllDirectionPre = this.request(
+            var getAllDirectionPre = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_directionPre),
-                method: "GET",
-                authJson: authenticationJson
+                method: "GET"
             ); // ! -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -157,14 +123,13 @@ namespace ELMA_API
             return direcsPre;
         }
         
-        public List<Department> departments(AuthJsonResponse authJson, string typeUid_department)
+        public List<Department> departments(string typeUid_department)
         {
             // ! -> typeUid_department уникальный индентификатор для справочников "кафедры" из базы данных Elma
 
-            var getAllDepartments = this.request(
+            var getAllDepartments = this.baseHttp.request(
                 path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_department),
-                method: "GET",
-                authJson: authJson
+                method: "GET"
             ); // ! -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
