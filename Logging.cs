@@ -23,7 +23,7 @@ namespace ELMA_API {
             Figlet figlet = new Figlet(font);
             
             Console.Write("\n");
-            Console.WriteLine(figlet.ToAscii(" ELMA-API"), ColorTranslator.FromHtml("#8AFFEF"));
+            Console.WriteLine(figlet.ToAscii(" ELMA-API"), Color.FromArgb(36,114,200,255));
 
             int r = 225; int g = 255; int b = 250;
 
@@ -40,10 +40,10 @@ namespace ELMA_API {
 
             // separator title and message
             String sepTitleMessage = " >";
-            if (title.ToLower() == InfoTitle.start_upload.ToLower()) sepTitleMessage = " /";
+            if (title.ToLower() == InfoTitle.startUpload.ToLower()) sepTitleMessage = " /";
 
             // transform message to UpperCase if Start-Upload title
-            message = title.ToUpper() == InfoTitle.start_upload.ToUpper()
+            message = title.ToUpper() == InfoTitle.startUpload.ToUpper()
                 ? message.ToUpper()
                 : message;
 
@@ -56,16 +56,16 @@ namespace ELMA_API {
             Console.Write(" /", Color.White);
             
             Console.Write($" {title.ToUpper()}", 
-                title.ToUpper() == InfoTitle.start_upload.ToUpper()
+                title.ToUpper() == InfoTitle.startUpload.ToUpper()
                     ? Color.FromArgb(251, 97, 7) 
                     : Color.FromArgb(112, 224, 0)); // custom title of the INFO
             
-            Console.Write(sepTitleMessage, title.ToUpper() == InfoTitle.start_upload.ToUpper()
+            Console.Write(sepTitleMessage, title.ToUpper() == InfoTitle.startUpload.ToUpper()
                     ? Color.FromArgb(251, 97, 7) 
                     : Color.White);
             
             Console.Write($" {message}", 
-                title.ToUpper() == InfoTitle.start_upload.ToUpper() 
+                title.ToUpper() == InfoTitle.startUpload.ToUpper() 
                     ? Color.FromArgb(251, 97, 7) 
                     : Color.White); // custom message of the INFO
             
@@ -96,14 +96,14 @@ namespace ELMA_API {
     {
         // учебные планы
         public static readonly string launch = "launch";
-        public static readonly string login_elma = "login-elma";
-        public static readonly string login_db = "login-db";
-        public static readonly string start_upload = "start-upload";
-        public static readonly string data_elma = "data-elma";
-        public static readonly string data_db = "data-db";
+        public static readonly string loginElma = "login-elma";
+        public static readonly string loginDB = "login-db";
+        public static readonly string startUpload = "start-upload";
+        public static readonly string dataElma = "data-elma";
+        public static readonly string dataDB = "data-db";
         public static readonly string missed = "missed";
-        public static readonly string inject_data = "inject-data";
-        public static readonly string file_exists = "file-exists";
+        public static readonly string injectData = "inject-data";
+        public static readonly string fileExists = "file-exists";
     }
 
     public static class WarnTItle 

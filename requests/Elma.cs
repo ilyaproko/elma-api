@@ -1,27 +1,31 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Text;
 
 namespace ELMA_API
 {
     class RequestElma
     {
         public BaseHttp baseHttp;
+        public TypesUidElma typesUidElma;
 
-        public RequestElma(BaseHttp baseHttp) 
+        public RequestElma(BaseHttp baseHttp, TypesUidElma typesUidElma) 
         {
             this.baseHttp = baseHttp;
+            this.typesUidElma = typesUidElma;
         }
 
-        public List<string> educationalPlans(string typeUid_UchebnyePlany)
+        public List<string> educationalPlans()
         {
-            // ! -> typeUid_UchebnyePlany уникальный индентификатор для справочников 'учебные планы' 
+            // this.typesUidElma.eduPlans уникальный индентификатор для справочников 'учебные планы' 
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.eduPlans
+            };
 
             var getAllPlans = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_UchebnyePlany),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
 
@@ -37,15 +41,19 @@ namespace ELMA_API
                     if (item.Name == "Naimenovanie") educational_plans_elma.Add(item.Value);
 
             return educational_plans_elma;
-
         }
         
-        public List<FacultyGuide> faculties(string typeUid_faculties)
+        public List<FacultyGuide> faculties()
         {
-            // ! -> typeUid_faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
+            // this.typesUidElma.faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.faculties
+            };
 
             var getAllFaculties = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_faculties),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
             
@@ -68,12 +76,17 @@ namespace ELMA_API
             return faculties_elma;
         }
 
-        public List<String> disciplines(string typeUid_discipline)
+        public List<String> disciplines()
         {
-            // ! -> typeUid_discipline уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
+            // this.typesUidElma.disciplines уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.disciplines
+            };
 
             var getAllDisciplines = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_discipline),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
 
@@ -93,12 +106,17 @@ namespace ELMA_API
             return disciplines;
         }
 
-        public List<DirectionPreparation> directions_pre(string typeUid_directionPre)
+        public List<DirectionPreparation> directions_pre()
         {
-            // ! -> typeUid_directionPre уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
+            // this.typesUidElma.direcPreparation уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.direcPreparations
+            };
 
             var getAllDirectionPre = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_directionPre),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
 
@@ -123,12 +141,17 @@ namespace ELMA_API
             return direcsPre;
         }
         
-        public List<Department> departments(string typeUid_department)
+        public List<Department> departments()
         {
-            // ! -> typeUid_department уникальный индентификатор для справочников "кафедры" из базы данных Elma
+            // this.typesUidElma.department уникальный индентификатор для справочников "кафедры" из базы данных Elma
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.departments
+            };
 
             var getAllDepartments = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUid_department),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
 
@@ -141,11 +164,38 @@ namespace ELMA_API
             return resJsonDepartments;
         }
 
-
-        public List<String> groups(string typeUidGroups)
+        public void findFaculty(string naimenovaniePolnoe)
         {
+            // this.typesUidElma.faculties уникальный идентификатор для справочников Факультеты на сервере Elma
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.faculties,
+                ["q"] = $"NaimenovaniePolnoe like `{naimenovaniePolnoe}`"
+            };
+            // http://bpm-demo.elma-bpm.ru/API/REST/Entity/Query?type={TYPEUID}&q={EQLQUERY}
+
+            var findFaculty = this.baseHttp.request(
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
+                method: "GET"
+            );
+
+            Console.WriteLine($"NaimenovaniePolnoe like `{naimenovaniePolnoe}`");
+            Console.WriteLine(findFaculty);
+        }
+
+
+        public List<String> groups()
+        {
+            // this.typesUidElma.groups уникальный иднетификатор для справочников Группы на сервере
+            // define query parameters for url-http
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = this.typesUidElma.groups
+            };
+
             var getGroups = this.baseHttp.request(
-                path: String.Format("/API/REST/Entity/Query?type={0}", typeUidGroups),
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
                 method: "GET"
             ); // -> тип Тела-Ответа вернет как string(json)
 
@@ -158,6 +208,13 @@ namespace ELMA_API
                 foreach (var item in group.Items)
                     if (item.Name == "Naimenovanie" 
                         && !uniqueNameGroups.Contains(item.Value)) uniqueNameGroups.Add(item.Value);
+
+            foreach (var item in uniqueNameGroups)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine(uniqueNameGroups.Count);
+
 
             return new List<string>();
         }

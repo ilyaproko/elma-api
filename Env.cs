@@ -23,7 +23,7 @@ namespace ELMA_API
             this.pathFile = Path.Combine(Environment.CurrentDirectory, this.fileName);
         
             if (File.Exists(this.pathFile)) {
-                Logging.Info(InfoTitle.file_exists, "file \".env\" is found");
+                Logging.Info(InfoTitle.fileExists, "file \".env\" is found");
 
                 string[] lines = File.ReadAllText(this.pathFile).Split("\n");
 

@@ -6,24 +6,26 @@ namespace ELMA_API
     class UploadData
     {
         public BaseHttp baseHttp;
+        public RequestElma reqElma;
+        public TypesUidElma typesUidElma;
 
-        public UploadData(BaseHttp baseHttp) {
-            this.baseHttp = baseHttp;
+        public UploadData(BaseHttp baseHttp, RequestElma reqElma, TypesUidElma typesUidElma) {
+            this.baseHttp = baseHttp; // нужен для простых запросов-http к серверу Elma
+            this.reqElma = reqElma; // нужен для уже подготовленных запросов к Elma
+            this.typesUidElma = typesUidElma; // нужен для уникальных идентификаторов Elma
         }
 
         /// <summary>
         /// производит вызгрузку отсутсвующих данных на сервере ELMA
         /// </summary>
         /// <param name="jsonAuthResp">объект с атрибутами предназначенными для заголовков доступа в http запросе</param>
-        /// <param name="typeUid_uchebnyePlany">уникальный идентификатор типа на сервере ELMA для спраовчника 'учебные планы'</param>
         /// <param name="plans">в данном объекте есть поле educational_plans_upload в котором находсят данные которых 
         /// нет на сервер ELMA и которые соотвественно функция загрзут</param>
         public void EducationalPlans(
-            string typeUid_uchebnyePlany,
             List<string> eduPlansElma,
             List<string> eduPlansDB)
         {
-            Logging.Info(InfoTitle.start_upload, "EDUCATIONAL PLANS");
+            Logging.Info(InfoTitle.startUpload, "EDUCATIONAL PLANS");
 
             // list educational plans that aren't in ELMA server but they're in database dekanat
             List<string> eduPlansMissed = new List<string>();
@@ -57,7 +59,7 @@ namespace ELMA_API
                 }".Replace("INJECTED_VALUE_IN_TEXT", plan);
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_uchebnyePlany),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.eduPlans),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -67,19 +69,18 @@ namespace ELMA_API
             }
 
             // Logging information
-            Logging.Info(InfoTitle.data_elma, $"{eduPlansElma.Count} educational plans in elma");
-            Logging.Info(InfoTitle.data_db, $"{eduPlansDB.Count} educational plans in database");
+            Logging.Info(InfoTitle.dataElma, $"{eduPlansElma.Count} educational plans in elma");
+            Logging.Info(InfoTitle.dataDB, $"{eduPlansDB.Count} educational plans in database");
             Logging.Info(InfoTitle.missed, $"{eduPlansMissed.Count} missed educational plans");
-            Logging.Info(InfoTitle.inject_data, $"{plans_inserted.Count} injected educational plans to elma-server");
+            Logging.Info(InfoTitle.injectData, $"{plans_inserted.Count} injected educational plans to elma-server");
 
         }
 
         public void Faculties(
-            string typeUid_faculties,
             List<FacultyGuide> facultiesElma,
             List<FacultyGuide> facultiesDB)
         {
-            Logging.Info(InfoTitle.start_upload, "FACULTIES");
+            Logging.Info(InfoTitle.startUpload, "FACULTIES");
 
             // list faculties that aren't in ELMA server but they're in database dekanat
             List<FacultyGuide> facultiesMissed = new List<FacultyGuide>();
@@ -121,7 +122,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.short_name); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_faculties),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.faculties),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -130,18 +131,17 @@ namespace ELMA_API
             }
 
             // logging information
-            Logging.Info(InfoTitle.data_elma, $"{facultiesElma.Count} faculties in elma");
-            Logging.Info(InfoTitle.data_db, $"{facultiesDB.Count} faculties in database");
+            Logging.Info(InfoTitle.dataElma, $"{facultiesElma.Count} faculties in elma");
+            Logging.Info(InfoTitle.dataDB, $"{facultiesDB.Count} faculties in database");
             Logging.Info(InfoTitle.missed, $"{facultiesMissed.Count} missed faculties plans");
-            Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected faculties to elma-server");
+            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected faculties to elma-server");
         }
 
         public void Disciplines(
-            string typeUid_discipline,
             List<String> disciplinesElma,
             List<String> disciplinesDB)
         {
-            Logging.Info(InfoTitle.start_upload, "DISCIPLINES");
+            Logging.Info(InfoTitle.startUpload, "DISCIPLINES");
 
             // list disciplines that aren't in ELMA server but they're in database dekanat
             List<String> disciplinesMissed = new List<String>();
@@ -172,7 +172,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", discipline); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_discipline),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.disciplines),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -182,18 +182,17 @@ namespace ELMA_API
             }
 
             // logging information
-            Logging.Info(InfoTitle.data_elma, $"{disciplinesElma.Count} disciplines in elma");
-            Logging.Info(InfoTitle.data_db, $"{disciplinesDB.Count} disciplines in database");
+            Logging.Info(InfoTitle.dataElma, $"{disciplinesElma.Count} disciplines in elma");
+            Logging.Info(InfoTitle.dataDB, $"{disciplinesDB.Count} disciplines in database");
             Logging.Info(InfoTitle.missed, $"{disciplinesMissed.Count} missed disciplines plans");
-            Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected disciplines to elma-server");
+            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected disciplines to elma-server");
         }
      
         public void DirecsPre( // загрузка направлений подготовки
-            string typeUid_direcsPre,
             List<DirectionPreparation> direcsPreElma,
             List<DirectionPreparation> direcsPreDB)
         {
-            Logging.Info(InfoTitle.start_upload, "DIRECTIONS PREPARATIONS");
+            Logging.Info(InfoTitle.startUpload, "DIRECTIONS PREPARATIONS");
 
             // list directions preparations that aren't in ELMA server but they're in database dekanat
             List<DirectionPreparation> direcsPreMissed = new List<DirectionPreparation>();
@@ -246,7 +245,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_KOD", directPre.Kod); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", typeUid_direcsPre),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.direcPreparations),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -257,18 +256,17 @@ namespace ELMA_API
 
 
             // logging information
-            Logging.Info(InfoTitle.data_elma, $"{direcsPreElma.Count} directions preparations in elma");
-            Logging.Info(InfoTitle.data_db, $"{direcsPreDB.Count} directions preparations in database");
+            Logging.Info(InfoTitle.dataElma, $"{direcsPreElma.Count} directions preparations in elma");
+            Logging.Info(InfoTitle.dataDB, $"{direcsPreDB.Count} directions preparations in database");
             Logging.Info(InfoTitle.missed, $"{direcsPreMissed.Count} missed directions preparations plans");
-            Logging.Info(InfoTitle.inject_data, $"{insertedData.Count} injected directions preparations to elma-server");
+            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected directions preparations to elma-server");
         }
     
         public void Departments( // загрузка кафедр
-            string typeUid_department,
             List<Department> departmentsElma,
             List<DepartmentFromDB> departmentsDB
         ) {
-            Logging.Info(InfoTitle.start_upload, "departments");
+            Logging.Info(InfoTitle.startUpload, "departments");
 
             // list departments that aren't in ELMA server but they're in database dekanat
             List<DirectionPreparation> departmentsMissed = new List<DirectionPreparation>();
@@ -283,11 +281,14 @@ namespace ELMA_API
                     && !codesDepElma.Contains(itemDep.Value)) codesDepElma.Add(itemDep.Value);
 
             
-
+            foreach (var department in departmentsDB)
+            {
+                this.reqElma.findFaculty(department.FacultyLong);
+            }
             
             // logging information
-            Logging.Info(InfoTitle.data_elma, $"{departmentsElma.Count} departments in elma");
-            Logging.Info(InfoTitle.data_db, $"{departmentsDB.Count} departments in database");
+            Logging.Info(InfoTitle.dataElma, $"{departmentsElma.Count} departments in elma");
+            Logging.Info(InfoTitle.dataDB, $"{departmentsDB.Count} departments in database");
             Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} departments in database");
         }
     }

@@ -15,7 +15,7 @@ namespace ELMA_API
         public ConnectionDatabase() 
         {
             // Logging 
-            Logging.Info(InfoTitle.login_db, "connection to database is successful");
+            Logging.Info(InfoTitle.loginDB, "connection to database is successful");
         }
 
         public void openConnection()

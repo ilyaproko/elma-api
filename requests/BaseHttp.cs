@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -17,9 +18,21 @@ namespace ELMA_API
             this.auth = this.getAuth(token, user, password);
         }
 
-        public String request(String path, String method, String body = null)
+        public String request(String path, String method, String body = null, Dictionary<string, string> queryParams = null)
         {
-            HttpWebRequest req = WebRequest.Create(String.Format("http://" + this.hostaddress + path)) as HttpWebRequest;
+            string fullUrl = "http://" + this.hostaddress + path;
+
+            // * if pass queryParameters
+            if (queryParams != null) {
+                List<string> qParams = new List<string>();
+
+                foreach (var record in queryParams)
+                    qParams.Add($"{record.Key}={record.Value}");
+                
+                fullUrl += "?" + String.Join('&', qParams.ToArray());
+            }
+            
+            HttpWebRequest req = WebRequest.Create(String.Format(fullUrl)) as HttpWebRequest;
             req.Method = method;
             req.Headers.Add("AuthToken", this.auth.AuthToken);
             req.Headers.Add("SessionToken", this.auth.SessionToken);
@@ -33,6 +46,8 @@ namespace ELMA_API
                 Stream sendStream = req.GetRequestStream();
                 sendStream.Write(sendBody, 0, sendBody.Length);
             }
+
+            
             
             var res = req.GetResponse() as HttpWebResponse;
             var resStream = res.GetResponseStream();
@@ -81,7 +96,7 @@ namespace ELMA_API
             var responseJson = JsonConvert.DeserializeObject<AuthJsonResponse>(responseBody);
 
             // Logging 
-            Logging.Info(InfoTitle.login_elma, "connection is successful");
+            Logging.Info(InfoTitle.loginElma, "connection is successful");
 
             return responseJson;
         }
