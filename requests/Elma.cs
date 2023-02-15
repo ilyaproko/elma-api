@@ -164,15 +164,23 @@ namespace ELMA_API
             return resJsonDepartments;
         }
 
-        public void findFaculty(string naimenovaniePolnoe)
+        public List<Item> findFaculty(string nameLong, string nameShort)
         {
+            // Elma Query Language - найти все ФАКУЛЬТЕТЫ 
+            // где ПолноеНаименование и Сокращенное Наименование соответсвуют ЗНАЧЕНИЮ ПОИСКА
+            // или где ПолноеНаименование НЕ ПУСТОЕ и СокращенноеНаименование соответсвует ЗНАЧЕНИЮ ПОИСКА
+            // или где ПолноеНаименование соответсвует ЗНАЧЕНИЮ ПОИСКА а СокращенноеНаименование НЕ ПУСТОЕ
+            var EQLquery = @$"
+            (NaimenovaniePolnoe LIKE `{nameLong}` AND NaimenovanieSokraschennoe LIKE `{nameShort}`) 
+            OR (NOT NaimenovaniePolnoe LIKE `` AND NaimenovanieSokraschennoe LIKE `{nameShort}`)
+            OR (NaimenovaniePolnoe LIKE `{nameLong}` AND NOT NaimenovanieSokraschennoe LIKE ``)";
             // this.typesUidElma.faculties уникальный идентификатор для справочников Факультеты на сервере Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
                 ["type"] = this.typesUidElma.faculties,
-                ["q"] = $"NaimenovaniePolnoe like `{naimenovaniePolnoe}`"
+                ["q"] = EQLquery,
+                ["limit"] = "1"
             };
-            // http://bpm-demo.elma-bpm.ru/API/REST/Entity/Query?type={TYPEUID}&q={EQLQUERY}
 
             var findFaculty = this.baseHttp.request(
                 path: "/API/REST/Entity/Query",
@@ -180,8 +188,13 @@ namespace ELMA_API
                 method: "GET"
             );
 
-            Console.WriteLine($"NaimenovaniePolnoe like `{naimenovaniePolnoe}`");
-            Console.WriteLine(findFaculty);
+            // преобразование ответа от сервера типа string(json) в объектный тип
+            List<Root> resJsonFaculty = JsonConvert.DeserializeObject<List<Root>>(findFaculty);
+
+            // Console.WriteLine($"\n\nNaimenovaniePolnoe LIKE `{nameLong}` OR NaimenovanieSokraschennoe LIKE `{nameShort}`");
+            // Console.WriteLine(findFaculty);
+
+            return resJsonFaculty.Count != 0 ? resJsonFaculty[0].Items : null;
         }
 
 

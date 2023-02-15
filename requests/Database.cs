@@ -191,6 +191,32 @@ namespace ELMA_API
                 );
             }
 
+            // test block data which isn't in Elma server
+            // departments_db.Add(
+            //     new DepartmentFromDB() {
+            //         Code = "007",
+            //         NameLong = "testLongName",
+            //         NameShort = "testShortName",
+            //         FacultyShort = "ИСУ",
+            //         FacultyLong = "Информационные системы в управлении",
+            //         Room = "testRoom",
+            //         Phone = "testPhone",
+            //         HeadOfDepartment = "testPersonHeadOfDepartment"
+            //     }
+            // );
+            // departments_db.Add(
+            //     new DepartmentFromDB() {
+            //         Code = "00077",
+            //         NameLong = "test2LongName",
+            //         NameShort = "test2ShortName",
+            //         FacultyShort = "АДМ",
+            //         FacultyLong = "Автомобильные дороги и мосты",
+            //         Room = "test2Room",
+            //         Phone = "test2Phone",
+            //         HeadOfDepartment = "test2PersonHeadOfDepartment"
+            //     }
+            // );
+
             return departments_db;
         }
 

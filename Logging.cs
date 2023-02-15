@@ -106,10 +106,11 @@ namespace ELMA_API {
         public static readonly string fileExists = "file-exists";
     }
 
-    public static class WarnTItle 
+    public static class WarnTitle 
     {
         public static readonly string fileNotFount = "not-found";
         public static readonly string directory = "directory";
+        public static readonly string notFoundFaculty = "not-found-faculty";
     }
 
 }

@@ -38,8 +38,8 @@ namespace ELMA_API
                     }
                 }
             } else {
-                Logging.Warn(WarnTItle.fileNotFount, "file \".env\" is not exist");
-                Logging.Warn(WarnTItle.fileNotFount, $"{this.pathFile}");
+                Logging.Warn(WarnTitle.fileNotFount, "file \".env\" is not exist");
+                Logging.Warn(WarnTitle.fileNotFount, $"{this.pathFile}");
             }
         }
 

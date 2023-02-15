@@ -56,14 +56,6 @@ namespace ELMA_API
                 direcsPreElma: reqElma.directions_pre(), // напр. подготов. из Elma server
                 direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
-            // var test = BaseHttp.request(
-            //     url: "http://127.0.0.1:8000/API/REST/Entity/Load?type={TYPEUID}&id={ENTITYID}"
-            //         .Replace("{TYPEUID}", "862af194-c1df-49c5-8692-21ffca0988c7")
-            //         .Replace("{ENTITYID}", "1fd8ad56-8610-451f-a28d-15c4086e3864"),
-            //     method: "GET",
-            //     authJsonResponse
-            // );
-
             // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
             uploadData.Departments(
                 departmentsElma: reqElma.departments(), // кафедры из Elma server

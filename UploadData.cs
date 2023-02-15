@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace ELMA_API
 {
@@ -269,27 +271,157 @@ namespace ELMA_API
             Logging.Info(InfoTitle.startUpload, "departments");
 
             // list departments that aren't in ELMA server but they're in database dekanat
-            List<DirectionPreparation> departmentsMissed = new List<DirectionPreparation>();
+            List<DepartmentFromDB> departmentsMissed = new List<DepartmentFromDB>();
 
-            // получаем все код кафедр которые есть на сервере Elma
-            List<String> codesDepElma = new List<String>();
-            // получаем ячейку "KodKafedry" и проверяем есть ли она в хранилище 
-            // codesDepElma, если нет тогда добавляем
+            // Хранилище ответов http на внедрение данных от сервера ELMA 
+            List<string> insertedData = new List<string>();
+
+            // получаем СокращенныеНаименование Кафедр которые есть на сервере Elma
+            List<String> namesShortDepElma = new List<String>();
+            // получаем ячейку "NaimenovanieSokraschennoe" и проверяем есть ли она в хранилище 
+            // nameShortDepElma, если нет тогда добавляем
             foreach (Department dep in departmentsElma)
                 foreach (ItemDepartment itemDep in dep.Items)
-                    if (itemDep.Name == "KodKafedry" 
-                    && !codesDepElma.Contains(itemDep.Value)) codesDepElma.Add(itemDep.Value);
+                    if (itemDep.Name == "NaimenovanieSokraschennoe" 
+                    && !namesShortDepElma.Contains(itemDep.Value)) namesShortDepElma.Add(itemDep.Value);
 
             
-            foreach (var department in departmentsDB)
+            // итерация по кафедрам из БД, проверяем в хранилище СокращенныхНаименовение из сервера ELMA
+            // namesShortDepElma если там НЕТ такого же наименование как СокращенноеНаименование ИЗ БД
+            // тогда добавляем в хранилище departmentsMissed данную кафедру из БД
+            foreach (DepartmentFromDB dep in departmentsDB)
             {
-                this.reqElma.findFaculty(department.FacultyLong);
+                if (!namesShortDepElma.Contains(dep.NameShort)) {
+                    departmentsMissed.Add(dep);
+                }  
             }
+
+            // внедрение направлений подготовки которые отсутствуют в ELMA
+            foreach (var department in departmentsMissed)
+            {
+                // получение зависимости в Справочнике Кафедра -> ФАКУЛЬТЕТ : Id, TypeUid, Uid, Name
+                var foundFaculty = this.reqElma.findFaculty(department.FacultyLong, department.FacultyShort);
+                String facultyId = null, facultyTypeUid = null, facultyUid = null, facultyNameShort = null;
+                
+                // ЕСЛИ НЕ НАЙДЕТ ФАКУЛЬТЕТ СООТВЕТВУЮЩИМИ ЗНАЧЕНИЯМИ, ТОГДА ЗАЛОГИРУЕТ И ВЫБРОСИТ ОШИБКУ 
+                if (foundFaculty == null) {
+                    Logging.Warn(WarnTitle.notFoundFaculty, $"{department.FacultyShort}, {department.FacultyLong}");
+                    throw new Exception($"НЕ НАЙДЕН ФАКУЛЬТЕТ : {department.FacultyShort}, {department.FacultyLong}");
+                }
+
+                // добавление данных найденного факультета для переменных
+                foreach (var item in foundFaculty) {
+                    if (item.Name == "Id") facultyId = item.Value;
+                    if (item.Name == "TypeUid") facultyTypeUid = item.Value;
+                    if (item.Name == "Uid") facultyUid = item.Value;
+                    if (item.Name == "NaimenovanieSokraschennoe") facultyNameShort = item.Value;
+                }
+
+                // тела запроса для внедрение данных на сервер elma в формате json
+                var textReqInsert = @"{
+                ""Items"": [
+                    {
+                        ""Data"": null,
+                        ""DataArray"": [],
+                        ""Name"": ""NaimenovaniePolnoe"",
+                        ""Value"": ""INJECT_NAME_LONG""
+                    },
+                    {
+                        ""Data"": null,
+                        ""DataArray"": [],
+                        ""Name"": ""NaimenovanieSokraschennoe"",
+                        ""Value"": ""INJECT_NAME_SHORT""
+                    },
+                    {
+                        ""Data"": null,
+                        ""DataArray"": [],
+                        ""Name"": ""KodKafedry"",
+                        ""Value"": ""INJECT_CODE_DEPARTMENT""
+                    },
+                    {
+                        ""Data"": null,
+                        ""DataArray"": [],
+                        ""Name"": ""Telefon"",
+                        ""Value"": null
+                    },
+                    {
+                        ""Data"": null,
+                        ""DataArray"": [],
+                        ""Name"": ""Kabinet"",
+                        ""Value"": ""INJECT_ROOM_DEPARTMENT""
+                    },
+                    {
+                        ""Data"": {
+                            ""Items"": [
+                                {
+                                    ""Data"": null,
+                                    ""DataArray"": [],
+                                    ""Name"": ""Id"",
+                                    ""Value"": ""INJECT_FACULTY_ID""
+                                },
+                                {
+                                    ""Data"": null,
+                                    ""DataArray"": [],
+                                    ""Name"": ""Uid"",
+                                    ""Value"": ""INJECT_FACULTY_UID""
+                                },
+                                {
+                                    ""Data"": null,
+                                    ""DataArray"": [],
+                                    ""Name"": ""Name"",
+                                    ""Value"": ""INJECT_FACULTY_SHORT_NAME""
+                                }
+                            ],
+                            ""Value"": null
+                        },
+                        ""DataArray"": [],
+                        ""Name"": ""Fakuljtet"",
+                        ""Value"": null
+                    }
+                ],
+                ""Value"": null
+                }"
+                .Replace("INJECT_FACULTY_ID", facultyId)
+                .Replace("INJECT_FACULTY_UID",facultyUid)
+                .Replace("INJECT_FACULTY_SHORT_NAME", facultyNameShort)
+                .Replace("INJECT_NAME_LONG", department.NameLong)
+                .Replace("INJECT_NAME_SHORT", department.NameShort)
+                .Replace("INJECT_CODE_DEPARTMENT", department.Code)
+                .Replace("INJECT_ROOM_DEPARTMENT", department.Room);
+            
+                var responseInsert = this.baseHttp.request(
+                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.departments),
+                    method: "POST",
+                    body: textReqInsert
+                );
+
+                insertedData.Add(responseInsert);
+            }
+
+            // * ПРОВЕРКА запросы к Elma для новых справочников КАФЕДРЫ
+            // foreach (var item in insertedData)
+            // {
+            //     var queryParams = new Dictionary<string, string>() {
+            //         ["type"] = this.typesUidElma.departments,
+            //         ["q"] = $"Id = {new Regex(@"[0-9]+").Match(item).ToString()}",
+            //         ["limit"] = "1"
+            //     };
+
+            //     Console.WriteLine(
+            //         this.baseHttp.request(
+            //             path: "/API/REST/Entity/Query",
+            //             method: "GET",
+            //             queryParams: queryParams
+            //         )
+            //     );
+            // }
+
             
             // logging information
             Logging.Info(InfoTitle.dataElma, $"{departmentsElma.Count} departments in elma");
             Logging.Info(InfoTitle.dataDB, $"{departmentsDB.Count} departments in database");
-            Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} departments in database");
+            Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} missed departments");
+            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
         }
     }
 
