@@ -91,7 +91,7 @@ namespace ELMA_API
             // если нет тогда добавляем хранилище
             foreach (FacultyGuide facultyDB in facultiesDB)
             {
-                var matches = facultiesElma.FindAll(facultyElma => facultyElma.long_name == facultyDB.long_name);
+                var matches = facultiesElma.FindAll(facultyElma => facultyElma.longName == facultyDB.longName);
                 // если нет найденных факультетов с именем из БД на elma server тогда добавить в хранилище facultiesMissed
                 if (matches.Count == 0) facultiesMissed.Add(facultyDB);
             }
@@ -120,8 +120,8 @@ namespace ELMA_API
                     ],
                     ""Value"": null
                 }"
-                .Replace("INJECTED_VALUE_LONG_NAME", facultyMissed.long_name) // заменяем значение в тексте
-                .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.short_name); // заменяем значение в тексте
+                .Replace("INJECTED_VALUE_LONG_NAME", facultyMissed.longName) // заменяем значение в тексте
+                .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.shortName); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
                     path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.faculties),
@@ -129,7 +129,7 @@ namespace ELMA_API
                     body: textReqInsert
                 );
                 // добавление результата запроса на внедрение данных в список
-                insertedData.Add($"{facultyMissed.long_name} faculty, id {responseInsert} successfully injected on ELMA");
+                insertedData.Add($"{facultyMissed.longName} faculty, id {responseInsert} successfully injected on ELMA");
             }
 
             // logging information
@@ -265,7 +265,7 @@ namespace ELMA_API
         }
     
         public void Departments( // загрузка кафедр
-            List<Department> departmentsElma,
+            List<Root> departmentsElma,
             List<DepartmentFromDB> departmentsDB
         ) {
             Logging.Info(InfoTitle.startUpload, "departments");
@@ -280,8 +280,8 @@ namespace ELMA_API
             List<String> namesShortDepElma = new List<String>();
             // получаем ячейку "NaimenovanieSokraschennoe" и проверяем есть ли она в хранилище 
             // nameShortDepElma, если нет тогда добавляем
-            foreach (Department dep in departmentsElma)
-                foreach (ItemDepartment itemDep in dep.Items)
+            foreach (Root dep in departmentsElma)
+                foreach (Item itemDep in dep.Items)
                     if (itemDep.Name == "NaimenovanieSokraschennoe" 
                     && !namesShortDepElma.Contains(itemDep.Value)) namesShortDepElma.Add(itemDep.Value);
 

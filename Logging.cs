@@ -111,6 +111,7 @@ namespace ELMA_API {
         public static readonly string fileNotFount = "not-found";
         public static readonly string directory = "directory";
         public static readonly string notFoundFaculty = "not-found-faculty";
+        public static readonly string notFoundDirectPrep = "not-found-direct-prep";
     }
 
 }

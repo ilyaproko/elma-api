@@ -2,107 +2,38 @@
 
 namespace ELMA_API
 {
-
-    public class CellResponseEduPlan
+    // ! Main Structure of Elma Object in Server ! // // // // // // // // // // // // // // // // // // // //
+    public class Data
     {
-        public object Data { get; set; }
+        public List<Item> Items { get; set; }
+        public object Value { get; set; }
+    }
+
+    public class Item
+    {
+        public Data Data { get; set; }
         public List<object> DataArray { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
     }
 
-    public class RowResponseEduPlan
+    public class Root
     {
-        public List<CellResponseEduPlan> Items { get; set; }
+        public List<Item> Items { get; set; }
         public object Value { get; set; }
     }
-
-    public class JsonPlans
-    {
-        public List<string> educational_plans_upload { get; set; }
-        public List<string> educational_plans_db { get; set; }
-        public List<string> educational_plans_elma { get; set; }
-    }
-
+    // ! END ! // // // // // // // // // // // // // // // // // // // //
+    
     public class FacultyGuide
     {
-        public string long_name { get; set; }
-        public string short_name { get; set; }
-    }
-
-    public class DataFaculty
-    {
-        public List<CellResponseFaculty> Items { get; set; }
-        public object Value { get; set; }
-    }
-
-    public class CellResponseFaculty
-    {
-        public DataFaculty Data { get; set; }
-        public List<object> DataArray { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class RowResponseFaculty
-    {
-        public List<CellResponseFaculty> Items { get; set; }
-        public object Value { get; set; }
-    }
-
-    public class DataDiscipline
-    {
-        public object Data { get; set; }
-        public List<object> DataArray { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class Discipline
-    {
-        public List<DataDiscipline> Items { get; set; }
-        public object Value { get; set; }
+        public string longName { get; set; }
+        public string shortName { get; set; }
     }
 
     public class DirectionPreparation
     {
         public string Kod { get; set; }
         public string Naimenovanie { get; set; }
-    }
-
-    
-    public class DataDirectionsPre
-    {
-        public object Data { get; set; }
-        public List<object> DataArray { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class DirectionsPre
-    {
-        public List<DataDirectionsPre> Items { get; set; }
-        public object Value { get; set; }
-    }
-
-    public class DataDepartment
-    {
-        public List<ItemDepartment> Items { get; set; }
-        public object Value { get; set; }
-    }
-
-    public class ItemDepartment
-    {
-        public DataDepartment Data { get; set; }
-        public List<object> DataArray { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class Department
-    {
-        public List<ItemDepartment> Items { get; set; }
-        public object Value { get; set; }
     }
 
     public class DepartmentFromDB 
@@ -131,29 +62,17 @@ namespace ELMA_API
         public string FormStudy { get; set; } // форма обучения
     }
 
-
-    // ! Main Structure of Elma Object in Server ! // // // // // // // // // // // // // // // // // // // //
-    public class Data
+    public class PreProfile
     {
-        public List<Item> Items { get; set; }
-        public object Value { get; set; }
+        public string codeDirectPrep; // шифр направления подготовки для Даннного Профеля
+        public string idDirectPrep; // ID направления подготовки для Данного Профеля
+        public string name; // наименвоание профеля подготовки
+
+        public PreProfile(string name, string idDirectPrep, string codeDirectPrep)
+        {
+            this.name = name;
+            this.idDirectPrep = idDirectPrep;
+            this.codeDirectPrep = codeDirectPrep;
+        }
     }
-
-    public class Item
-    {
-        public Data Data { get; set; }
-        public List<object> DataArray { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class Root
-    {
-        public List<Item> Items { get; set; }
-        public object Value { get; set; }
-    }
-
-    // ! END ! // // // // // // // // // // // // // // // // // // // //
-
 }
-

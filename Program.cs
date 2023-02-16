@@ -53,7 +53,7 @@ namespace ELMA_API
 
             // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
             uploadData.DirecsPre(
-                direcsPreElma: reqElma.directions_pre(), // напр. подготов. из Elma server
+                direcsPreElma: reqElma.directsPreps(), // напр. подготов. из Elma server
                 direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
             // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
@@ -61,7 +61,13 @@ namespace ELMA_API
                 departmentsElma: reqElma.departments(), // кафедры из Elma server
                 departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            // reqElma.groups(TypesUid.groups);     
+            // var test = reqElma.preparationProfile();
+            // foreach (var item in test)
+            // {
+            //     Console.WriteLine(item.codeDirectPrep + " " + item.name + " " + item.idDirectPrep);
+            // }
+            // Console.WriteLine(test.Count);
+            // Console.WriteLine(JsonConvert.SerializeObject(reqElma.findDirectPrepById(null)));   
         } 
     }
 
@@ -78,6 +84,8 @@ namespace ELMA_API
         public readonly string direcPreparations = "c6f8bf73-f973-4f59-8fea-0084e3f95597";
         // кафедры
         public readonly string departments = "d65309ba-779a-4074-82a0-55560d8e4674"; 
+        // направления подготовки
+        public readonly string preparationProfile = "92392fcf-620d-4f0c-bede-af6dffbc41c4";
         // группы
         public readonly string groups = "1b5dca14-da97-4a7e-816f-b3531276149c";
     }

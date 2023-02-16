@@ -76,8 +76,8 @@ namespace ELMA_API
                 // добавляем факультет в хранилище
                 fakuljtety_db.Add(
                     new FacultyGuide() {
-                        short_name = fakuljtet_short,
-                        long_name = fakuljtet_long,
+                        shortName = fakuljtet_short,
+                        longName = fakuljtet_long,
                     } ); 
             }
 
