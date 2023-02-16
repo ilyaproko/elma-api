@@ -250,7 +250,7 @@ namespace ELMA_API
             return resJsonFaculty.Count != 0 ? resJsonFaculty[0].Items : null;
         }
 
-        public List<PreProfile> preparationProfile()
+        public List<PrepProfile> preparationProfile()
         {
             // this.typesUidElma.preparationProfile уникальный индентификатор для справочников "профили подготовки" из базы данных Elma
             // define query parameters for url-http
@@ -266,7 +266,7 @@ namespace ELMA_API
 
             // storage for Name Preparation Profile and Code's Direction Preparation 
             // -> Наименование Профеля Подготовки, Шифр и Id Направления подготовки
-            List<PreProfile> storageProfiles = new List<PreProfile>();
+            List<PrepProfile> storageProfiles = new List<PrepProfile>();
             
 
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -286,7 +286,7 @@ namespace ELMA_API
                 
                 // добавление в хранилище объекта
                 storageProfiles.Add(
-                    new PreProfile(nameProfile, idDirectPrep, codeDirectPrep)
+                    new PrepProfile(nameProfile, idDirectPrep, codeDirectPrep)
                 );
             }
 

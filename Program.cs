@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.IO;
-using System.Text;
-// для работы с response от сервера ELMA в формате json
-using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace ELMA_API
 {
@@ -61,11 +55,12 @@ namespace ELMA_API
                 departmentsElma: reqElma.departments(), // кафедры из Elma server
                 departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            // var test = reqElma.preparationProfile();
-            // foreach (var item in test)
-            // {
-            //     Console.WriteLine(item.codeDirectPrep + " " + item.name + " " + item.idDirectPrep);
-            // }
+            // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+            uploadData.ProfilePrep(
+                profilesElma: reqElma.preparationProfile(), // профили подготовки из Elma server
+                profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
+
+
             // Console.WriteLine(test.Count);
             // Console.WriteLine(JsonConvert.SerializeObject(reqElma.findDirectPrepById(null)));   
         } 

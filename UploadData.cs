@@ -423,6 +423,20 @@ namespace ELMA_API
             Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} missed departments");
             Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
         }
+   
+        public void ProfilePrep(
+            List<PrepProfile> profilesElma,
+            List<PrepProfileDB> profilesDB
+        ) {
+            Logging.Info(InfoTitle.startUpload, "profiles preparations");
+
+
+            // logging information
+            Logging.Info(InfoTitle.dataElma, $"{profilesElma.Count} departments in elma");
+            Logging.Info(InfoTitle.dataDB, $"{profilesDB.Count} departments in database");
+            // Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} missed departments");
+            // Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
+        }
     }
 
 }

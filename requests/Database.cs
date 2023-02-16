@@ -220,6 +220,35 @@ namespace ELMA_API
             return departments_db;
         }
 
+        public static List<PrepProfileDB> getPrepProfiles()
+        {
+            // строка запроса к БД для выборки уникальных значений "кафедры"
+            string queryStr = @"
+            select
+                distinct trim(Expr2) as 'Профиль',
+                trim(Шифр) as 'КодНаправленияПодготовки'
+            from dbo.ШвебельГруппы
+            where trim(Шифр) <> '' AND trim(Шифр) IS NOT null;";
+
+            // Получение данных из БД по запросу sql
+            DataTable table = requestDB(query_string: queryStr, database: database);
+
+            // list storage for unique Entity from DATABASE dekanat table Кафедры
+            List<PrepProfileDB> profilesDB = new List<PrepProfileDB>();
+
+            foreach (DataRow row in table.Rows) 
+            {
+                // получение атрибутов из БД по столбцу
+                string nameProfile = row.Field<String>("Профиль");
+                string codeDirectPrep = row.Field<String>("КодНаправленияПодготовки");
+                
+                // добавление в хранилище
+                profilesDB.Add(new PrepProfileDB(nameProfile, codeDirectPrep));
+            }
+
+            return profilesDB;
+        }
+
         public static void getGroups() 
         {
             // строка запроса к БД для выборки уникальных значений "кафедры"
