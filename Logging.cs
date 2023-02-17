@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using Colorful;
 using Console = Colorful.Console;
+using Spectre.Console;
+using System.Threading;
+using System.Text;
 
 namespace ELMA_API {
     
@@ -19,17 +22,17 @@ namespace ELMA_API {
             descriptionApp.Add(" software so the app doesn't use module structure of directories. The recieving the data from database \"Деканат\"");
             descriptionApp.Add(" and following views are being used \"ШвебельГруппы\", \"ШвебельПрактики\", \"ШвебельПрактикиБезКомпет\", \"ШвебельСтуденты\"\n");
 
-            FigletFont font = FigletFont.Load("./FigletFont/3d.flf");
+            Colorful.FigletFont font = Colorful.FigletFont.Load("./FigletFont/3d.flf");
             Figlet figlet = new Figlet(font);
             
             Console.Write("\n");
-            Console.WriteLine(figlet.ToAscii(" ELMA-API"), Color.FromArgb(36,114,200,255));
+            Console.WriteLine(figlet.ToAscii(" ELMA-API"), System.Drawing.Color.FromArgb(36,114,200,255));
 
             int r = 225; int g = 255; int b = 250;
 
             for (int i = 0; i < descriptionApp.Count; i++)
             {
-                Console.WriteLine(descriptionApp[i], Color.FromArgb(r, g, b));
+                Console.WriteLine(descriptionApp[i], System.Drawing.Color.FromArgb(r, g, b));
                 r -= 18;
                 b -= 9;
             }
@@ -37,57 +40,89 @@ namespace ELMA_API {
 
         static public void Info(String title, String message)
         {
-
             // separator title and message
             String sepTitleMessage = " >";
             if (title.ToLower() == InfoTitle.startUpload.ToLower()) sepTitleMessage = " /";
 
-            // transform message to UpperCase if Start-Upload title
-            message = title.ToUpper() == InfoTitle.startUpload.ToUpper()
-                ? message.ToUpper()
-                : message;
-
             var date = DateTime.Now;
+
+            String resultStr = "";
+
+            // time -> (<TIME>)
+            resultStr += $"([dodgerblue2]{date.ToString("HH:mm:ss")}[/])";
             
-            Console.Write($"[{date.ToString()}]", Color.FromArgb(22, 138, 173));
+            // -> (<TIME>) info
+            resultStr += " [green3 invert bold]info[/]";
             
-            Console.Write(" info", Color.FromArgb(124, 181, 24));
+            // TITLE
+            // ! logic color Theme for title
+            resultStr += $@" {(title.ToUpper() == InfoTitle.startUpload.ToUpper()
+                    ? "[orangered1]" 
+                    : "[green1]")}{title.ToLower()}[/]";
             
-            Console.Write(" /", Color.White);
+            // ! logic color Theme for separator between Title and Message
+            resultStr += title.ToUpper() == InfoTitle.startUpload.ToUpper() 
+                ? $"[orangered1]{sepTitleMessage}[/]" 
+                : $"[white]{sepTitleMessage}[/]";
             
-            Console.Write($" {title.ToUpper()}", 
-                title.ToUpper() == InfoTitle.startUpload.ToUpper()
-                    ? Color.FromArgb(251, 97, 7) 
-                    : Color.FromArgb(112, 224, 0)); // custom title of the INFO
-            
-            Console.Write(sepTitleMessage, title.ToUpper() == InfoTitle.startUpload.ToUpper()
-                    ? Color.FromArgb(251, 97, 7) 
-                    : Color.White);
-            
-            Console.Write($" {message}", 
-                title.ToUpper() == InfoTitle.startUpload.ToUpper() 
-                    ? Color.FromArgb(251, 97, 7) 
-                    : Color.White); // custom message of the INFO
-            
-            Console.Write("\n"); // new line
+            // MESSAGE
+            // ! logic color Theme for message
+            resultStr += title.ToUpper() == InfoTitle.startUpload.ToUpper() 
+                ? $"[orangered1] {message.ToLower()}[/]" 
+                : $"[white] {message.ToLower()}[/]";
+
+            // logging
+            AnsiConsole.MarkupLine(resultStr);
         }
     
         static public void Warn(String title, String message) 
         {
             var date = DateTime.Now;
-            Console.Write($"[{date.ToString()}]", Color.FromArgb(22, 138, 173));
 
-            Console.Write(" warn", Color.FromArgb(178, 6, 0));
+            String resultStr = "";
 
-            Console.Write(" /", Color.White);
+            // time -> (<TIME>)
+            resultStr += '(' + $"[dodgerblue2]{date.ToString("HH:mm:ss")}[/]" + ')';
+            // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
-            Console.Write($" {title.ToUpper()}", Color.FromArgb(207, 10, 10));
+            // -> (...) <WARN>
+            resultStr += " [red3 invert bold]warn[/]";
 
-            Console.Write(" >", Color.White);
+            // * Title
+            resultStr += $" [red1]{title.ToLower()}[/]";
 
-            Console.Write($" {message}", Color.White);
+            resultStr += $" [white]>[/]";
 
-            Console.Write("\n"); // new line
+            // * Message
+            resultStr += $" [white]{message}[/]";
+
+            // logging
+            AnsiConsole.MarkupLine(resultStr);
+        }
+    
+        static public void Testing()
+        {
+            // System.Console.OutputEncoding = Encoding.UTF8;
+            // Synchronous
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.BouncingBar)
+                .SpinnerStyle(Style.Parse("green1"))
+                .Start("[dodgerblue1]Thinking[/]", ctx => 
+                {
+                    // Simulate some work
+                    AnsiConsole.MarkupLine("[orange1]Doing some work...[/]");
+                    Thread.Sleep(1000);
+                    
+                    // Update the status and spinner
+                    ctx.Status("[dodgerblue1]Thinking some more[/]");
+
+                    // ctx.SpinnerStyle(Style.Parse("green"));
+
+                    // Simulate some work
+                    AnsiConsole.MarkupLine("Doing some more work...");
+                    Thread.Sleep(3000);
+                });
+
         }
     }
 

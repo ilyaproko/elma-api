@@ -23,16 +23,16 @@ namespace ELMA_API
         public string getValueItem(
             List<Item> items, 
             string nameItem, 
-            string nestedNameItem = null)
+            string nestedItemName = null)
         {
             foreach (var item in items) {
                 // if nestedNameItem wasn't passed in 
-                if (nestedNameItem == null) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
+                if (nestedItemName == null) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
                     if (item.Name == nameItem) return item.Value; // RETURN !!!
                 } else {
                     if (item.Name == nameItem) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
                         foreach (var itemNested in item.Data.Items) { // HAS NESTED DEPENDENCY
-                            if (itemNested.Name == nestedNameItem) return itemNested.Value; // RETURN !!!
+                            if (itemNested.Name == nestedItemName) return itemNested.Value; // RETURN !!!
                         }
                     }
                 }
@@ -250,7 +250,7 @@ namespace ELMA_API
             return resJsonFaculty.Count != 0 ? resJsonFaculty[0].Items : null;
         }
 
-        public List<PrepProfile> preparationProfile()
+        public List<PrepProfileElma> preparationProfile()
         {
             // this.typesUidElma.preparationProfile уникальный индентификатор для справочников "профили подготовки" из базы данных Elma
             // define query parameters for url-http
@@ -266,7 +266,7 @@ namespace ELMA_API
 
             // storage for Name Preparation Profile and Code's Direction Preparation 
             // -> Наименование Профеля Подготовки, Шифр и Id Направления подготовки
-            List<PrepProfile> storageProfiles = new List<PrepProfile>();
+            List<PrepProfileElma> storageProfiles = new List<PrepProfileElma>();
             
 
             // преобразование ответа от сервера типа string(json) в объектный тип
@@ -286,7 +286,7 @@ namespace ELMA_API
                 
                 // добавление в хранилище объекта
                 storageProfiles.Add(
-                    new PrepProfile(nameProfile, idDirectPrep, codeDirectPrep)
+                    new PrepProfileElma(nameProfile, idDirectPrep, codeDirectPrep)
                 );
             }
 

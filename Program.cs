@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using Spectre.Console;
 
 namespace ELMA_API
 {
@@ -6,6 +8,11 @@ namespace ELMA_API
     {
         static void Main(string[] args)
         {
+            // this setting need for spinner progress status currently show up
+            System.Console.OutputEncoding = Encoding.UTF8;
+            System.Console.InputEncoding = Encoding.UTF8;
+            // end setting block
+            
             Logging.StartApp();
             Logging.Info(InfoTitle.launch, "start elma-api application is successful");
             
@@ -30,39 +37,42 @@ namespace ELMA_API
             // которые есть в БД но отсутвуют на сервере Elma
             var uploadData = new UploadData(baseHttpElma, reqElma, typesUidElma);
 
-            // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-            uploadData.EducationalPlans(
-                eduPlansElma: reqElma.educationalPlans(), // "учебные планы" из сервера Elma
-                eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
+            // спинер Информирующий о Стутесе Процесса Программы
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.BouncingBall)
+                .SpinnerStyle(Style.Parse("green1"))
+                .Start("[white]Process uploding[/]", ctx => 
+            {
+                // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
+                uploadData.EducationalPlans(
+                    eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
 
-            // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-            uploadData.Faculties(
-                facultiesElma: reqElma.faculties(), // факультеты из Elma server
-                facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
+                // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
+                uploadData.Faculties(
+                    facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
+            
+                // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
+                uploadData.Disciplines(
+                    disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
-            // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-            uploadData.Disciplines(
-                disciplinesElma: reqElma.disciplines(), // дисциплины из Elma server
-                disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
+                // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
+                uploadData.DirecsPre(
+                    direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
-            // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-            uploadData.DirecsPre(
-                direcsPreElma: reqElma.directsPreps(), // напр. подготов. из Elma server
-                direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
+                // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
+                uploadData.Departments(
+                    departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-            uploadData.Departments(
-                departmentsElma: reqElma.departments(), // кафедры из Elma server
-                departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
-
-            // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
-            uploadData.ProfilePrep(
-                profilesElma: reqElma.preparationProfile(), // профили подготовки из Elma server
-                profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
+                // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+                uploadData.ProfilePrep(
+                    profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
+            });
 
 
             // Console.WriteLine(test.Count);
-            // Console.WriteLine(JsonConvert.SerializeObject(reqElma.findDirectPrepById(null)));   
+            // Console.WriteLine(JsonConvert.SerializeObject(reqElma.findDirectPrepById(null)));  
+            // AnsiConsole.Markup("[underline red]Hello[/] World!"); 
+
         } 
     }
 

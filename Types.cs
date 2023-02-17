@@ -62,13 +62,13 @@ namespace ELMA_API
         public string FormStudy { get; set; } // форма обучения
     }
 
-    public class PrepProfile
+    public class PrepProfileElma
     {
         public string codeDirectPrep; // шифр направления подготовки для Даннного Профеля
         public string idDirectPrep; // ID направления подготовки для Данного Профеля
         public string name; // наименвоание профеля подготовки
 
-        public PrepProfile(string name, string idDirectPrep, string codeDirectPrep)
+        public PrepProfileElma(string name, string idDirectPrep, string codeDirectPrep)
         {
             this.name = name;
             this.idDirectPrep = idDirectPrep;
@@ -78,11 +78,11 @@ namespace ELMA_API
 
     public class PrepProfileDB 
     {
-        public string nameProfile; // наименование направления подготовки
+        public string name; // наименование направления подготовки
         public string codeDirectPrep; // шифр направления подготовки для Даннного Профеля
 
         public PrepProfileDB(string name, string codeDirectPrep) {
-            this.nameProfile = name;
+            this.name = name;
             this.codeDirectPrep = codeDirectPrep;
         }
     }

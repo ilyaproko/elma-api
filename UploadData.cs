@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using Spectre.Console;
 
 namespace ELMA_API
 {
@@ -23,11 +24,13 @@ namespace ELMA_API
         /// <param name="jsonAuthResp">объект с атрибутами предназначенными для заголовков доступа в http запросе</param>
         /// <param name="plans">в данном объекте есть поле educational_plans_upload в котором находсят данные которых 
         /// нет на сервер ELMA и которые соотвественно функция загрзут</param>
-        public void EducationalPlans(
-            List<string> eduPlansElma,
-            List<string> eduPlansDB)
+        public void EducationalPlans(List<string> eduPlansDB)
         {
             Logging.Info(InfoTitle.startUpload, "EDUCATIONAL PLANS");
+            // AnsiConsole.MarkupLine("EDUCATIONAL PLANS");
+
+            // educational plan from ELMA -> requust // учебные планы из сервера Elma
+            List<string> eduPlansElma = this.reqElma.educationalPlans();
 
             // list educational plans that aren't in ELMA server but they're in database dekanat
             List<string> eduPlansMissed = new List<string>();
@@ -79,10 +82,12 @@ namespace ELMA_API
         }
 
         public void Faculties(
-            List<FacultyGuide> facultiesElma,
             List<FacultyGuide> facultiesDB)
         {
             Logging.Info(InfoTitle.startUpload, "FACULTIES");
+
+            // faculties from Elma -> request // факультеты из Elma server
+            List<FacultyGuide> facultiesElma = this.reqElma.faculties();
 
             // list faculties that aren't in ELMA server but they're in database dekanat
             List<FacultyGuide> facultiesMissed = new List<FacultyGuide>();
@@ -140,10 +145,12 @@ namespace ELMA_API
         }
 
         public void Disciplines(
-            List<String> disciplinesElma,
             List<String> disciplinesDB)
         {
             Logging.Info(InfoTitle.startUpload, "DISCIPLINES");
+
+            // disciplines from server Elma
+            List<String> disciplinesElma = this.reqElma.disciplines(); // дисциплины из Elma server
 
             // list disciplines that aren't in ELMA server but they're in database dekanat
             List<String> disciplinesMissed = new List<String>();
@@ -191,10 +198,12 @@ namespace ELMA_API
         }
      
         public void DirecsPre( // загрузка направлений подготовки
-            List<DirectionPreparation> direcsPreElma,
             List<DirectionPreparation> direcsPreDB)
         {
             Logging.Info(InfoTitle.startUpload, "DIRECTIONS PREPARATIONS");
+
+            // напр. подготов. из Elma server
+            List<DirectionPreparation> direcsPreElma = this.reqElma.directsPreps(); 
 
             // list directions preparations that aren't in ELMA server but they're in database dekanat
             List<DirectionPreparation> direcsPreMissed = new List<DirectionPreparation>();
@@ -265,10 +274,12 @@ namespace ELMA_API
         }
     
         public void Departments( // загрузка кафедр
-            List<Root> departmentsElma,
             List<DepartmentFromDB> departmentsDB
         ) {
             Logging.Info(InfoTitle.startUpload, "departments");
+
+            // кафедры из Elma server
+            List<Root> departmentsElma = reqElma.departments(); 
 
             // list departments that aren't in ELMA server but they're in database dekanat
             List<DepartmentFromDB> departmentsMissed = new List<DepartmentFromDB>();
@@ -425,17 +436,42 @@ namespace ELMA_API
         }
    
         public void ProfilePrep(
-            List<PrepProfile> profilesElma,
             List<PrepProfileDB> profilesDB
         ) {
             Logging.Info(InfoTitle.startUpload, "profiles preparations");
+
+            // профили подготовки из Elma server
+            List<PrepProfileElma> profilesElma = reqElma.preparationProfile();
+
+            // list "prepatations profiles" that aren't in ELMA server but they're in database dekanat
+            List<PrepProfileDB> profilesMissed = new List<PrepProfileDB>();
+
+            // Хранилище ответов http на внедрение данных от сервера ELMA 
+            List<string> insertedData = new List<string>();
+
+            List<string> codeNameProfileELma = new List<string>();
+            foreach (var profileElma in profilesElma)
+                codeNameProfileELma.Add(profileElma.codeDirectPrep + " " + profileElma.name);
+
+            foreach (var profileDB in profilesDB)
+            {
+                if (!codeNameProfileELma.Contains(profileDB.codeDirectPrep + " " + profileDB.name)) {
+                    profilesMissed.Add(profileDB);
+                }
+            }
+
+
+            // foreach (var item in profilesMissed)
+            // {
+            //     AnsiConsole.MarkupLine(item.codeDirectPrep + " " + item.name);
+            // }
 
 
             // logging information
             Logging.Info(InfoTitle.dataElma, $"{profilesElma.Count} departments in elma");
             Logging.Info(InfoTitle.dataDB, $"{profilesDB.Count} departments in database");
-            // Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} missed departments");
-            // Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
+            Logging.Info(InfoTitle.missed, $"{profilesMissed.Count} missed departments");
+            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
         }
     }
 
