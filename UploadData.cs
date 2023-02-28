@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using Spectre.Console;
 
 namespace ELMA_API
 {

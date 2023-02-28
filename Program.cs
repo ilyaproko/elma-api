@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Spectre.Console;
+
 
 namespace ELMA_API
 {
@@ -29,49 +31,63 @@ namespace ELMA_API
             // нужен как Зависимость только для UploadData и RequestElma
             // т.е. там где нужны запросы к серверу Elma
             var typesUidElma = new TypesUidElma();
+            
             // экземпляр класса с методами для запросов к серверу Elma
             // для получение данных от сервера elma, в основном данные из
             // объектов справочников
             var reqElma = new RequestElma(baseHttpElma, typesUidElma);
+            
             // экземпляр класса для загрузки данных на сервер Elma
             // которые есть в БД но отсутвуют на сервере Elma
             var uploadData = new UploadData(baseHttpElma, reqElma, typesUidElma);
-
-            // спинер Информирующий о Стутесе Процесса Программы
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.BouncingBall)
-                .SpinnerStyle(Style.Parse("green1"))
-                .Start("[white]Process uploding[/]", ctx => 
-            {
-                // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-                uploadData.EducationalPlans(
-                    eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
-
-                // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-                uploadData.Faculties(
-                    facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
             
-                // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-                uploadData.Disciplines(
-                    disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
+            // выгрузка данных на сервер elma из excel файлов
+            var uploadFromExcel = new UploadFromExcel(baseHttpElma, reqElma, typesUidElma);
 
-                // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-                uploadData.DirecsPre(
-                    direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
+            // раздел для выгрузки данных
+            // спинер Информирующий о Стутесе Процесса Программы
+            // AnsiConsole.Status()
+            //     .Spinner(Spinner.Known.BouncingBall)
+            //     .SpinnerStyle(Style.Parse("green1"))
+            //     .Start("[white]Process uploding[/]", ctx => 
+            // {
+            //     // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
+            //     uploadData.EducationalPlans(
+            //         eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
 
-                // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-                uploadData.Departments(
-                    departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
+            //     // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
+            //     uploadData.Faculties(
+            //         facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
+            
+            //     // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
+            //     uploadData.Disciplines(
+            //         disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
-                // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
-                uploadData.ProfilePrep(
-                    profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
-            });
+            //     // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
+            //     uploadData.DirecsPre(
+            //         direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
+            //     // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
+            //     uploadData.Departments(
+            //         departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            // Console.WriteLine(test.Count);
-            // Console.WriteLine(JsonConvert.SerializeObject(reqElma.findDirectPrepById(null)));  
-            // AnsiConsole.Markup("[underline red]Hello[/] World!"); 
+            //     // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+            //     uploadData.ProfilePrep(
+            //         profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
+            // });
+
+            uploadFromExcel.academicTitle("C:\\Users\\prokopiev_ia\\Desktop\\ППС.xlsx");
+
+            // var queryParameters = new Dictionary<string, string>() {
+            //     ["type"] = typesUidElma.students,
+            //     ["limit"] = "10"
+            // };
+
+            // Console.WriteLine(baseHttpElma.request(
+            //     path: "/API/REST/Entity/Query",
+            //     queryParams: queryParameters,
+            //     method: "GET"));
+
 
         } 
     }
@@ -93,6 +109,10 @@ namespace ELMA_API
         public readonly string preparationProfile = "92392fcf-620d-4f0c-bede-af6dffbc41c4";
         // группы
         public readonly string groups = "1b5dca14-da97-4a7e-816f-b3531276149c";
+        // пользователя - Системый Справочник Elma
+        public readonly string users = "18faf3ae-03c9-4e64-b02a-95dd63e54c4d";
+        // студенты
+        public readonly string students = " eb7e76a9-9bd1-410f-b8ff-877ce69ea850";
     }
 
 }

@@ -326,5 +326,23 @@ namespace ELMA_API
 
             return new List<string>();
         }
+
+        public List<Root> users() 
+        {
+            var queryParameters = new Dictionary<string, string>() {
+                ["type"] = typesUidElma.users
+            };
+
+            var getUsers = this.baseHttp.request(
+                path: "/API/REST/Entity/Query",
+                queryParams: queryParameters,
+                method: "GET"
+            );
+
+            // преобразование ответа от сервера типа string(json) в объектный тип
+            List<Root> respUsers = JsonConvert.DeserializeObject<List<Root>>(getUsers);
+
+            return respUsers;
+        }
     }
 }
