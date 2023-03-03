@@ -10,7 +10,7 @@ using System.Text;
 
 namespace ELMA_API {
     
-    class Logging
+    class Log
     {
         static public void StartApp() 
         {
@@ -38,36 +38,41 @@ namespace ELMA_API {
             }
         }
 
-        static public void Info(String title, String message)
+        static public void Success(String title, String message)
         {
             // separator title and message
             String sepTitleMessage = " >";
-            if (title.ToLower() == InfoTitle.startUpload.ToLower()) sepTitleMessage = " /";
+            if (title.ToLower() == SuccessTitle.uploadElma.ToLower()
+                || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()) sepTitleMessage = " /";
 
             var date = DateTime.Now;
 
             String resultStr = "";
 
             // time -> (<TIME>)
-            resultStr += $"([dodgerblue2]{date.ToString("HH:mm:ss")}[/])";
+            resultStr += $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
             
             // -> (<TIME>) info
-            resultStr += " [green3 invert bold]info[/]";
+            resultStr += " [green3 invert bold]success[/]";
             
             // TITLE
             // ! logic color Theme for title
-            resultStr += $@" {(title.ToUpper() == InfoTitle.startUpload.ToUpper()
+            resultStr += $@" {(
+                       title.ToUpper() == SuccessTitle.uploadElma.ToUpper()
+                    || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
                     ? "[orangered1]" 
                     : "[green1]")}{title.ToLower()}[/]";
             
             // ! logic color Theme for separator between Title and Message
-            resultStr += title.ToUpper() == InfoTitle.startUpload.ToUpper() 
+            resultStr += title.ToUpper() == SuccessTitle.uploadElma.ToUpper() 
+                        || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
                 ? $"[orangered1]{sepTitleMessage}[/]" 
                 : $"[white]{sepTitleMessage}[/]";
             
             // MESSAGE
             // ! logic color Theme for message
-            resultStr += title.ToUpper() == InfoTitle.startUpload.ToUpper() 
+            resultStr += title.ToUpper() == SuccessTitle.uploadElma.ToUpper()
+                         || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
                 ? $"[orangered1] {message.ToLower()}[/]" 
                 : $"[white] {message.ToLower()}[/]";
 
@@ -82,14 +87,39 @@ namespace ELMA_API {
             String resultStr = "";
 
             // time -> (<TIME>)
-            resultStr += '(' + $"[dodgerblue2]{date.ToString("HH:mm:ss")}[/]" + ')';
+            resultStr +=  $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
             // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
             // -> (...) <WARN>
-            resultStr += " [red3 invert bold]warn[/]";
+            resultStr += " [orangered1 invert bold]warn[/]";
 
             // * Title
-            resultStr += $" [red1]{title.ToLower()}[/]";
+            resultStr += $" [orangered1]{title.ToLower()}[/]";
+
+            resultStr += $" [white]>[/]";
+
+            // * Message
+            resultStr += $" [white]{message}[/]";
+
+            // logging
+            AnsiConsole.MarkupLine(resultStr);
+        }
+
+        static public void Notice(String title, String message) 
+        {
+            var date = DateTime.Now;
+
+            String resultStr = "";
+
+            // time -> (<TIME>)
+            resultStr +=  $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
+            // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
+
+            // -> (...) <WARN>
+            resultStr += " [gold1 invert bold]notice[/]";
+
+            // * Title
+            resultStr += $" [gold1]{title.ToLower()}[/]";
 
             resultStr += $" [white]>[/]";
 
@@ -100,45 +130,23 @@ namespace ELMA_API {
             AnsiConsole.MarkupLine(resultStr);
         }
     
-        static public void Testing()
-        {
-            // System.Console.OutputEncoding = Encoding.UTF8;
-            // Synchronous
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.BouncingBar)
-                .SpinnerStyle(Style.Parse("green1"))
-                .Start("[dodgerblue1]Thinking[/]", ctx => 
-                {
-                    // Simulate some work
-                    AnsiConsole.MarkupLine("[orange1]Doing some work...[/]");
-                    Thread.Sleep(1000);
-                    
-                    // Update the status and spinner
-                    ctx.Status("[dodgerblue1]Thinking some more[/]");
-
-                    // ctx.SpinnerStyle(Style.Parse("green"));
-
-                    // Simulate some work
-                    AnsiConsole.MarkupLine("Doing some more work...");
-                    Thread.Sleep(3000);
-                });
-
-        }
     }
 
 
-    public static class InfoTitle 
+    public static class SuccessTitle 
     {
         // учебные планы
         public static readonly string launch = "launch";
         public static readonly string loginElma = "login-elma";
         public static readonly string loginDB = "login-db";
-        public static readonly string startUpload = "start-upload";
+        public static readonly string uploadElma = "upload-elma";
+        public static readonly string uploadExcel = "upload-excel";
         public static readonly string dataElma = "data-elma";
         public static readonly string dataDB = "data-db";
         public static readonly string missed = "missed";
-        public static readonly string injectData = "inject-data";
+        public static readonly string injectedData = "injected-data";
         public static readonly string fileExists = "file-exists";
+        public static readonly string updatedData = "updated-data";
     }
 
     public static class WarnTitle 
@@ -147,6 +155,13 @@ namespace ELMA_API {
         public static readonly string directory = "directory";
         public static readonly string notFoundFaculty = "not-found-faculty";
         public static readonly string notFoundDirectPrep = "not-found-direct-prep";
+        public static readonly string columnsExcel = "columns-excel";
+    }
+
+    public static class NoticeTitle 
+    {
+        public static readonly string check = "check";
+        public static readonly string missedData = "missed-data";
     }
 
 }

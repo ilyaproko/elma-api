@@ -15,7 +15,7 @@ namespace ELMA_API
         public ConnectionDatabase() 
         {
             // Logging 
-            Logging.Info(InfoTitle.loginDB, "connection to database is successful");
+            Log.Success(SuccessTitle.loginDB, "connection to database is successful");
         }
 
         public void openConnection()
@@ -23,7 +23,7 @@ namespace ELMA_API
             if (sqlConnection.State == System.Data.ConnectionState.Closed)
             {
                 sqlConnection.Open();
-                Logging.Info("login-db", "connection to database ms sql server is successful");
+                Log.Success("login-db", "connection to database ms sql server is successful");
             }
         }
 

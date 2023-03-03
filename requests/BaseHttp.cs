@@ -96,7 +96,7 @@ namespace ELMA_API
             var responseJson = JsonConvert.DeserializeObject<AuthJsonResponse>(responseBody);
 
             // Logging 
-            Logging.Info(InfoTitle.loginElma, "connection is successful");
+            Log.Success(SuccessTitle.loginElma, "connection is successful");
 
             return responseJson;
         }

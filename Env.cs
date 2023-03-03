@@ -23,7 +23,7 @@ namespace ELMA_API
             this.pathFile = Path.Combine(Environment.CurrentDirectory, this.fileName);
         
             if (File.Exists(this.pathFile)) {
-                Logging.Info(InfoTitle.fileExists, "file \".env\" is found");
+                Log.Success(SuccessTitle.fileExists, "file \".env\" is found");
 
                 string[] lines = File.ReadAllText(this.pathFile).Split("\n");
 
@@ -38,12 +38,12 @@ namespace ELMA_API
                     }
                 }
             } else {
-                Logging.Warn(WarnTitle.fileNotFount, "file \".env\" is not exist");
-                Logging.Warn(WarnTitle.fileNotFount, $"{this.pathFile}");
+                Log.Warn(WarnTitle.fileNotFount, "file \".env\" is not exist");
+                Log.Warn(WarnTitle.fileNotFount, $"{this.pathFile}");
             }
         }
 
-        public string getEnv(string key) {
+        public string getVar(string key) {
 
             foreach (EnvRecord record in this.envsList)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Spectre.Console;
 
@@ -15,15 +16,15 @@ namespace ELMA_API
             System.Console.InputEncoding = Encoding.UTF8;
             // end setting block
             
-            Logging.StartApp();
-            Logging.Info(InfoTitle.launch, "start elma-api application is successful");
+            Log.StartApp();
+            Log.Success(SuccessTitle.launch, "start elma-api application is successful");
             
             // get environment variables
             var env = new EnvModule(".env");
-            string user = env.getEnv("USER");
-            string token = env.getEnv("TOKEN");
-            string password = env.getEnv("PASSWORD");
-            string hostaddress = env.getEnv("HOSTADDRESS");
+            string user = env.getVar("USER");
+            string token = env.getVar("TOKEN");
+            string password = env.getVar("PASSWORD");
+            string hostaddress = env.getVar("HOSTADDRESS");
 
             var baseHttpElma = new BaseHttp(hostaddress, token, user, password);
 
@@ -44,39 +45,66 @@ namespace ELMA_API
             // выгрузка данных на сервер elma из excel файлов
             var uploadFromExcel = new UploadFromExcel(baseHttpElma, reqElma, typesUidElma);
 
-            // раздел для выгрузки данных
+            // * раздел для выгрузки данных из БД деканата в Elma
             // спинер Информирующий о Стутесе Процесса Программы
             // AnsiConsole.Status()
-            //     .Spinner(Spinner.Known.BouncingBall)
+            //     .Spinner(Spinner.Known.BouncingBar)
             //     .SpinnerStyle(Style.Parse("green1"))
             //     .Start("[white]Process uploding[/]", ctx => 
             // {
             //     // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
+            //     ctx.Status("educational plans");
             //     uploadData.EducationalPlans(
             //         eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
 
             //     // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
+            //     ctx.Status("faculties");
             //     uploadData.Faculties(
             //         facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
             
             //     // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
+            //     ctx.Status("disciplines");
             //     uploadData.Disciplines(
             //         disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
             //     // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
+            //     ctx.Status("direction preparations");
             //     uploadData.DirecsPre(
             //         direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
             //     // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
+            //     ctx.Status("departments");
             //     uploadData.Departments(
             //         departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
             //     // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+            //     ctx.Status("profile preparations");
             //     uploadData.ProfilePrep(
             //         profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
             // });
 
-            uploadFromExcel.academicTitle("C:\\Users\\prokopiev_ia\\Desktop\\ППС.xlsx");
+            // * раздел для выгрузки данных из Статичных файлов в директории STATIC в Elma
+            // спинер Информирующий о Стутесе Процесса Программы
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.BouncingBar)
+                .SpinnerStyle(Style.Parse("green1"))
+                .Start("[white]Process uploding[/]", ctx => 
+            {
+                // выгрузка учёных званий для системного справочника elma -> пользователь (user)
+                // ctx.Status("academic titles");
+                // uploadFromExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
+
+                // выгрузка пользователей которые ОТСУТСТВУЮТ на сервере elma
+                ctx.Status("add new users");
+                uploadFromExcel.addUsers(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
+            });
+
+            // reqElma.users().FindAll(user => {
+            //     return reqElma.getValueItem(user.Items, "UchyonoeZvanie") != null;
+            // }).ForEach(user => {
+            //     Console.Write(reqElma.getValueItem(user.Items, "FullName"));
+            //     Console.WriteLine(" | " + reqElma.getValueItem(user.Items, "UchyonoeZvanie"));
+            // });
 
             // var queryParameters = new Dictionary<string, string>() {
             //     ["type"] = typesUidElma.students,

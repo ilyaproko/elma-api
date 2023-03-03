@@ -189,7 +189,7 @@ namespace ELMA_API
 
                 return directPrep;
             } catch (System.Exception) {  
-                Logging.Warn(WarnTitle.notFoundDirectPrep, $"Elma hasn't direction preparation with ID = {id ?? "null"}");
+                Log.Warn(WarnTitle.notFoundDirectPrep, $"Elma hasn't direction preparation with ID = {id ?? "null"}");
                 return null;
             }
         }

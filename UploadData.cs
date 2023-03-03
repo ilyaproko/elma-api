@@ -23,7 +23,7 @@ namespace ELMA_API
         /// нет на сервер ELMA и которые соотвественно функция загрзут</param>
         public void EducationalPlans(List<string> eduPlansDB)
         {
-            Logging.Info(InfoTitle.startUpload, "EDUCATIONAL PLANS");
+            Log.Success(SuccessTitle.uploadElma, "EDUCATIONAL PLANS");
             // AnsiConsole.MarkupLine("EDUCATIONAL PLANS");
 
             // educational plan from ELMA -> requust // учебные планы из сервера Elma
@@ -71,17 +71,17 @@ namespace ELMA_API
             }
 
             // Logging information
-            Logging.Info(InfoTitle.dataElma, $"{eduPlansElma.Count} educational plans in elma");
-            Logging.Info(InfoTitle.dataDB, $"{eduPlansDB.Count} educational plans in database");
-            Logging.Info(InfoTitle.missed, $"{eduPlansMissed.Count} missed educational plans");
-            Logging.Info(InfoTitle.injectData, $"{plans_inserted.Count} injected educational plans to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{eduPlansElma.Count} educational plans in elma");
+            Log.Success(SuccessTitle.dataDB, $"{eduPlansDB.Count} educational plans in database");
+            Log.Success(SuccessTitle.missed, $"{eduPlansMissed.Count} missed educational plans");
+            Log.Success(SuccessTitle.injectedData, $"{plans_inserted.Count} injected educational plans to elma-server");
 
         }
 
         public void Faculties(
             List<FacultyGuide> facultiesDB)
         {
-            Logging.Info(InfoTitle.startUpload, "FACULTIES");
+            Log.Success(SuccessTitle.uploadElma, "FACULTIES");
 
             // faculties from Elma -> request // факультеты из Elma server
             List<FacultyGuide> facultiesElma = this.reqElma.faculties();
@@ -135,16 +135,16 @@ namespace ELMA_API
             }
 
             // logging information
-            Logging.Info(InfoTitle.dataElma, $"{facultiesElma.Count} faculties in elma");
-            Logging.Info(InfoTitle.dataDB, $"{facultiesDB.Count} faculties in database");
-            Logging.Info(InfoTitle.missed, $"{facultiesMissed.Count} missed faculties plans");
-            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected faculties to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{facultiesElma.Count} faculties in elma");
+            Log.Success(SuccessTitle.dataDB, $"{facultiesDB.Count} faculties in database");
+            Log.Success(SuccessTitle.missed, $"{facultiesMissed.Count} missed faculties plans");
+            Log.Success(SuccessTitle.injectedData, $"{insertedData.Count} injected faculties to elma-server");
         }
 
         public void Disciplines(
             List<String> disciplinesDB)
         {
-            Logging.Info(InfoTitle.startUpload, "DISCIPLINES");
+            Log.Success(SuccessTitle.uploadElma, "DISCIPLINES");
 
             // disciplines from server Elma
             List<String> disciplinesElma = this.reqElma.disciplines(); // дисциплины из Elma server
@@ -188,16 +188,16 @@ namespace ELMA_API
             }
 
             // logging information
-            Logging.Info(InfoTitle.dataElma, $"{disciplinesElma.Count} disciplines in elma");
-            Logging.Info(InfoTitle.dataDB, $"{disciplinesDB.Count} disciplines in database");
-            Logging.Info(InfoTitle.missed, $"{disciplinesMissed.Count} missed disciplines plans");
-            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected disciplines to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{disciplinesElma.Count} disciplines in elma");
+            Log.Success(SuccessTitle.dataDB, $"{disciplinesDB.Count} disciplines in database");
+            Log.Success(SuccessTitle.missed, $"{disciplinesMissed.Count} missed disciplines plans");
+            Log.Success(SuccessTitle.injectedData, $"{insertedData.Count} injected disciplines to elma-server");
         }
      
         public void DirecsPre( // загрузка направлений подготовки
             List<DirectionPreparation> direcsPreDB)
         {
-            Logging.Info(InfoTitle.startUpload, "DIRECTIONS PREPARATIONS");
+            Log.Success(SuccessTitle.uploadElma, "DIRECTIONS PREPARATIONS");
 
             // напр. подготов. из Elma server
             List<DirectionPreparation> direcsPreElma = this.reqElma.directsPreps(); 
@@ -264,16 +264,16 @@ namespace ELMA_API
 
 
             // logging information
-            Logging.Info(InfoTitle.dataElma, $"{direcsPreElma.Count} directions preparations in elma");
-            Logging.Info(InfoTitle.dataDB, $"{direcsPreDB.Count} directions preparations in database");
-            Logging.Info(InfoTitle.missed, $"{direcsPreMissed.Count} missed directions preparations plans");
-            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected directions preparations to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{direcsPreElma.Count} directions preparations in elma");
+            Log.Success(SuccessTitle.dataDB, $"{direcsPreDB.Count} directions preparations in database");
+            Log.Success(SuccessTitle.missed, $"{direcsPreMissed.Count} missed directions preparations plans");
+            Log.Success(SuccessTitle.injectedData, $"{insertedData.Count} injected directions preparations to elma-server");
         }
     
         public void Departments( // загрузка кафедр
             List<DepartmentFromDB> departmentsDB
         ) {
-            Logging.Info(InfoTitle.startUpload, "departments");
+            Log.Success(SuccessTitle.uploadElma, "departments");
 
             // кафедры из Elma server
             List<Root> departmentsElma = reqElma.departments(); 
@@ -313,7 +313,7 @@ namespace ELMA_API
                 
                 // ЕСЛИ НЕ НАЙДЕТ ФАКУЛЬТЕТ СООТВЕТВУЮЩИМИ ЗНАЧЕНИЯМИ, ТОГДА ЗАЛОГИРУЕТ И ВЫБРОСИТ ОШИБКУ 
                 if (foundFaculty == null) {
-                    Logging.Warn(WarnTitle.notFoundFaculty, $"{department.FacultyShort}, {department.FacultyLong}");
+                    Log.Warn(WarnTitle.notFoundFaculty, $"{department.FacultyShort}, {department.FacultyLong}");
                     throw new Exception($"НЕ НАЙДЕН ФАКУЛЬТЕТ : {department.FacultyShort}, {department.FacultyLong}");
                 }
 
@@ -426,16 +426,16 @@ namespace ELMA_API
 
             
             // logging information
-            Logging.Info(InfoTitle.dataElma, $"{departmentsElma.Count} departments in elma");
-            Logging.Info(InfoTitle.dataDB, $"{departmentsDB.Count} departments in database");
-            Logging.Info(InfoTitle.missed, $"{departmentsMissed.Count} missed departments");
-            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{departmentsElma.Count} departments in elma");
+            Log.Success(SuccessTitle.dataDB, $"{departmentsDB.Count} departments in database");
+            Log.Success(SuccessTitle.missed, $"{departmentsMissed.Count} missed departments");
+            Log.Success(SuccessTitle.injectedData, $"{insertedData.Count} injected departments to elma-server");
         }
    
         public void ProfilePrep(
             List<PrepProfileDB> profilesDB
         ) {
-            Logging.Info(InfoTitle.startUpload, "profiles preparations");
+            Log.Success(SuccessTitle.uploadElma, "profiles preparations");
 
             // профили подготовки из Elma server
             List<PrepProfileElma> profilesElma = reqElma.preparationProfile();
@@ -465,10 +465,10 @@ namespace ELMA_API
 
 
             // logging information
-            Logging.Info(InfoTitle.dataElma, $"{profilesElma.Count} departments in elma");
-            Logging.Info(InfoTitle.dataDB, $"{profilesDB.Count} departments in database");
-            Logging.Info(InfoTitle.missed, $"{profilesMissed.Count} missed departments");
-            Logging.Info(InfoTitle.injectData, $"{insertedData.Count} injected departments to elma-server");
+            Log.Success(SuccessTitle.dataElma, $"{profilesElma.Count} departments in elma");
+            Log.Success(SuccessTitle.dataDB, $"{profilesDB.Count} departments in database");
+            Log.Success(SuccessTitle.missed, $"{profilesMissed.Count} missed departments");
+            Log.Success(SuccessTitle.injectedData, $"{insertedData.Count} injected departments to elma-server");
         }
     }
 
