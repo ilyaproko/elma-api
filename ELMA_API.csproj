@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Aspose.Cells" Version="23.2.0" />
     <PackageReference Include="Colorful.Console" Version="1.2.15" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Spectre.Console" Version="0.46.0" />

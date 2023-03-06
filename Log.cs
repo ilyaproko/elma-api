@@ -91,7 +91,7 @@ namespace ELMA_API {
             // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
             // -> (...) <WARN>
-            resultStr += " [orangered1 invert bold]warn[/]";
+            resultStr += " [orangered1 invert bold]warn|||[/]";
 
             // * Title
             resultStr += $" [orangered1]{title.ToLower()}[/]";
@@ -116,7 +116,7 @@ namespace ELMA_API {
             // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
             // -> (...) <WARN>
-            resultStr += " [gold1 invert bold]notice[/]";
+            resultStr += " [gold1 invert bold]notice|[/]";
 
             // * Title
             resultStr += $" [gold1]{title.ToLower()}[/]";
@@ -135,7 +135,6 @@ namespace ELMA_API {
 
     public static class SuccessTitle 
     {
-        // учебные планы
         public static readonly string launch = "launch";
         public static readonly string loginElma = "login-elma";
         public static readonly string loginDB = "login-db";
@@ -146,7 +145,9 @@ namespace ELMA_API {
         public static readonly string missed = "missed";
         public static readonly string injectedData = "injected-data";
         public static readonly string fileExists = "file-exists";
-        public static readonly string updatedData = "updated-data";
+        public static readonly string uploadNewUsers = "upload-new-users";
+        public static readonly string updatedAcadTitle = "updated-academic-titles";
+        public static readonly string synchronized = "synchronized";
     }
 
     public static class WarnTitle 
@@ -156,10 +157,12 @@ namespace ELMA_API {
         public static readonly string notFoundFaculty = "not-found-faculty";
         public static readonly string notFoundDirectPrep = "not-found-direct-prep";
         public static readonly string columnsExcel = "columns-excel";
+        public static readonly string keyObjectElma = "key-object-elma";
     }
 
     public static class NoticeTitle 
     {
+        public static readonly string important = "important";
         public static readonly string check = "check";
         public static readonly string missedData = "missed-data";
     }

@@ -46,8 +46,6 @@ namespace ELMA_API
                 Stream sendStream = req.GetRequestStream();
                 sendStream.Write(sendBody, 0, sendBody.Length);
             }
-
-            
             
             var res = req.GetResponse() as HttpWebResponse;
             var resStream = res.GetResponseStream();

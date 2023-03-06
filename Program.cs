@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using HtmlAgilityPack;
 using Spectre.Console;
 
 
@@ -27,23 +29,18 @@ namespace ELMA_API
             string hostaddress = env.getVar("HOSTADDRESS");
 
             var baseHttpElma = new BaseHttp(hostaddress, token, user, password);
-
-            // экземпляр с атрибутами уникальных идентификаторов Спраовчников Elma
-            // нужен как Зависимость только для UploadData и RequestElma
-            // т.е. там где нужны запросы к серверу Elma
-            var typesUidElma = new TypesUidElma();
             
             // экземпляр класса с методами для запросов к серверу Elma
             // для получение данных от сервера elma, в основном данные из
             // объектов справочников
-            var reqElma = new RequestElma(baseHttpElma, typesUidElma);
+            var reqElma = new RequestElma(baseHttpElma);
             
             // экземпляр класса для загрузки данных на сервер Elma
             // которые есть в БД но отсутвуют на сервере Elma
-            var uploadData = new UploadData(baseHttpElma, reqElma, typesUidElma);
+            var uploadData = new UploadData(baseHttpElma, reqElma);
             
             // выгрузка данных на сервер elma из excel файлов
-            var uploadFromExcel = new UploadFromExcel(baseHttpElma, reqElma, typesUidElma);
+            var uploadExcel = new UploadExcel(baseHttpElma, reqElma);
 
             // * раздел для выгрузки данных из БД деканата в Elma
             // спинер Информирующий о Стутесе Процесса Программы
@@ -90,13 +87,13 @@ namespace ELMA_API
                 .SpinnerStyle(Style.Parse("green1"))
                 .Start("[white]Process uploding[/]", ctx => 
             {
-                // выгрузка учёных званий для системного справочника elma -> пользователь (user)
-                // ctx.Status("academic titles");
-                // uploadFromExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
-
-                // выгрузка пользователей которые ОТСУТСТВУЮТ на сервере elma
+                // выгрузка пользователей которые ОТСУТСТВУЮТ на сервере elma, справочник User
                 ctx.Status("add new users");
-                uploadFromExcel.addUsers(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
+                uploadExcel.addUsers(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"), baseHttpElma);
+
+                // обновление учёных званий для системного справочника elma -> пользователь (user)
+                ctx.Status("academic titles");
+                uploadExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
             });
 
             // reqElma.users().FindAll(user => {
@@ -106,17 +103,6 @@ namespace ELMA_API
             //     Console.WriteLine(" | " + reqElma.getValueItem(user.Items, "UchyonoeZvanie"));
             // });
 
-            // var queryParameters = new Dictionary<string, string>() {
-            //     ["type"] = typesUidElma.students,
-            //     ["limit"] = "10"
-            // };
-
-            // Console.WriteLine(baseHttpElma.request(
-            //     path: "/API/REST/Entity/Query",
-            //     queryParams: queryParameters,
-            //     method: "GET"));
-
-
         } 
     }
 
@@ -124,23 +110,23 @@ namespace ELMA_API
     public class TypesUidElma 
     {
         // учебные планы
-        public readonly string eduPlans = "4bbebaa3-4c81-4cdc-8115-23b9721726cb";
+        public static readonly string eduPlans = "4bbebaa3-4c81-4cdc-8115-23b9721726cb";
         // факультеты
-        public readonly string faculties = "862af194-c1df-49c5-8692-21ffca0988c7";
+        public static readonly string faculties = "862af194-c1df-49c5-8692-21ffca0988c7";
         // дисциплины
-        public readonly string disciplines = "b1bce0ec-1cf6-44ea-9915-844969fd7823";
+        public static readonly string disciplines = "b1bce0ec-1cf6-44ea-9915-844969fd7823";
         // напраления подготовки
-        public readonly string direcPreparations = "c6f8bf73-f973-4f59-8fea-0084e3f95597";
+        public static readonly string direcPreparations = "c6f8bf73-f973-4f59-8fea-0084e3f95597";
         // кафедры
-        public readonly string departments = "d65309ba-779a-4074-82a0-55560d8e4674"; 
+        public static readonly string departments = "d65309ba-779a-4074-82a0-55560d8e4674"; 
         // направления подготовки
-        public readonly string preparationProfile = "92392fcf-620d-4f0c-bede-af6dffbc41c4";
+        public static readonly string preparationProfile = "92392fcf-620d-4f0c-bede-af6dffbc41c4";
         // группы
-        public readonly string groups = "1b5dca14-da97-4a7e-816f-b3531276149c";
+        public static readonly string groups = "1b5dca14-da97-4a7e-816f-b3531276149c";
         // пользователя - Системый Справочник Elma
-        public readonly string users = "18faf3ae-03c9-4e64-b02a-95dd63e54c4d";
+        public static readonly string users = "18faf3ae-03c9-4e64-b02a-95dd63e54c4d";
         // студенты
-        public readonly string students = " eb7e76a9-9bd1-410f-b8ff-877ce69ea850";
+        public static readonly string students = " eb7e76a9-9bd1-410f-b8ff-877ce69ea850";
     }
 
 }

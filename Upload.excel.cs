@@ -5,16 +5,14 @@ using Spectre.Console;
 
 namespace ELMA_API
 {
-    class UploadFromExcel
+    class UploadExcel
     {
         public BaseHttp baseHttp;
         public RequestElma reqElma;
-        public TypesUidElma typesUidElma;
-        public UploadFromExcel(BaseHttp baseHttp, RequestElma reqElma, TypesUidElma typesUidElma)
+        public UploadExcel(BaseHttp baseHttp, RequestElma reqElma)
         {
             this.baseHttp = baseHttp; // нужен для простых запросов-http к серверу Elma
             this.reqElma = reqElma; // нужен для уже подготовленных запросов к Elma
-            this.typesUidElma = typesUidElma; // нужен для уникальных идентификаторов Elma
         }
 
         /// <summary>
@@ -28,13 +26,20 @@ namespace ELMA_API
         {
             Log.Success(SuccessTitle.uploadExcel, "academic title");
 
+            // проверка на содержание и правильное расположнеие колонок в excel файле
+            if (!ExcelGuard.academicTitle(pathExcel))
+                throw new Exception("Error Excel File");
+
+            // проверка существует ли в объекте-спрвочнике ELMA "user"
+            // ключ с конкретным типом данных 
+            if (!ElmaObject.existRecord(baseHttp, TypesUidElma.users, "UchyonoeZvanie", "перечислениееее"))
+                throw new Exception("Error existing record object ELMA");
+
             // получение всех пользоваетелей user из сервера elma
             var getUsersElma = this.reqElma.users();
 
             // хранилище пользователей elma после фильтрации через цикл
             List<UserElma> usersELma = new List<UserElma>();
-            // хранилище для пользователей у которых нет ученого звания которые отсутвуют на сервере ELMA
-            List<string> usersWithoutAcad = new List<string>();
             // хранилище для пользователей с учёч. званием Доцент
             List<string> usersProfessor = new List<string>();
             // хранилище для пользователей с учёч. званием Доцент
@@ -56,10 +61,6 @@ namespace ELMA_API
             var workbook = new Aspose.Cells.Workbook(pathExcel);
             var currentSheet = workbook.Worksheets[0];
             int currRow = 1, currCell = 0;
-
-            // проверка на содержание и правильное расположнеие колонок в excel файле
-            if (!ExcelGuard.academicTitle(currentSheet, pathExcel))
-                throw new Exception("Error Excel File");
 
             // перебор по файлу excel, проверяем не пустое ли первое поле,  если  ДА, то  завершаем цикл
             while (currentSheet.Cells[currRow, currCell].StringValue != "")
@@ -104,7 +105,7 @@ namespace ELMA_API
                     // зарпос к Elma для обновление поля
                     // УчёноеЗвание / UchyonoeZvanie для пользователя 
                     var resp = this.baseHttp.request(
-                        path: $"/API/REST/Entity/Update/{typesUidElma.users}/{tryFindUser.entityId}",
+                        path: $"/API/REST/Entity/Update/{TypesUidElma.users}/{tryFindUser.entityId}",
                         method: "POST",
                         body: JsonConvert.SerializeObject(requestBody)
                     );
@@ -118,40 +119,40 @@ namespace ELMA_API
                     } else if (prepareAcadTitle == "1") {
                         usersProfessor.Add(tryFindUser.fullName);
                     }
-                } else {
-                    // если пользователь из excel файла будет отсутствовать на сервере elma
-                    usersWithoutAcad.Add(fullNameExcel);
-                }
-                
+                } 
                 // * смещение строки на следующую, не удалять иначе бесконечный цикл
                 currRow++;
             }
-
-            // логирует кол-во пользователей которых нет на серве elma
-            if (usersWithoutAcad.Count != 0) 
-                Log.Notice(NoticeTitle.missedData, $"users without academic title in server elma: {usersWithoutAcad.Count}");
             
             // логирует ответы от сервера elma если обновит хотябы одного пользователя (его учёное звание)
             if (responsesElma.Count != 0) 
-                Log.Success(SuccessTitle.updatedData, $"academic titles are updated for users: {responsesElma.Count}");
+                Log.Success(SuccessTitle.updatedAcadTitle, $"academic titles are updated for users: {responsesElma.Count}");
                         
-            // логирует кол-во доцентов
-            if (usersDocent.Count != 0)
-                Log.Success(SuccessTitle.updatedData, $"docents: {usersDocent.Count}");
-
-            // логирует кол-во профессоров
-            if (usersProfessor.Count != 0)
-                Log.Success(SuccessTitle.updatedData, $"professors: {usersProfessor.Count}");
+            // логирует кол-во доцентов и профессоров
+            if (usersDocent.Count != 0 || usersProfessor.Count != 0)
+                Log.Success(SuccessTitle.updatedAcadTitle, $"docents: {usersDocent.Count}, professors: {usersProfessor.Count}");
         }
 
         /// <summary>
-        /// добавление новых пользователей которые ОТСУТСТВУЮТ на сервере elma
+        /// добавление новых пользователей которые ОТСУТСТВУЮТ на сервере elma,
+        /// новые пользователи определяются по ФИО на сервере ELMA
         /// ! ОБЯЗАТЕЛЬНО для СИСТЕМНОГО СПРАВОЧНИКА пользователь в elma дожен быть дополнительное 
-        /// ! кастомное свой-во UchyonoeZvanie - УчёноеЗвание, значение которого является
+        /// ! кастомное свой-во UchyonoeZvanie - УчёноеЗвание
         /// * колонки в excel-файле дожны быть следующие: ФИО-Полностью | ФИО-Сокращенно | УченоеЗвание | Кафедра
         /// </summary>
-        public void addUsers(string pathExcel) 
+        public void addUsers(string pathExcel, BaseHttp baseHttpElma) 
         {
+            Log.Success(SuccessTitle.uploadExcel, "new users");
+
+            // проверка на содержание и правильное расположнеие колонок в excel файле
+            if (!ExcelGuard.academicTitle(pathExcel))
+                throw new Exception("Error Excel File");
+
+            // проверка существует ли в объекте-спрвочнике ELMA "user"
+            // ключ с конкретным типом данных 
+            if (!ElmaObject.existRecord(baseHttp, TypesUidElma.users, "UchyonoeZvanie", "перечисление"))
+                throw new Exception("Error existing record object ELMA");
+
             // получение всех пользоваетелей user из сервера elma
             var getUsersElma = this.reqElma.users();
             // хранилище пользователей elma после фильтрации через цикл
@@ -176,10 +177,7 @@ namespace ELMA_API
             var currentSheet = workbook.Worksheets[0];
             int currRow = 1, currCell = 0;
 
-            // проверка на содержание и правильное расположнеие колонок в excel файле
-            if (!ExcelGuard.academicTitle(currentSheet, pathExcel))
-                throw new Exception("Error Excel File");
-            
+            // цикл для добавление пользователей в excel файле которых нет на сервере ELMA
             // перебор по файлу excel, проверяем не пустое ли первое поле,  если  ДА, то  завершаем цикл
             while (currentSheet.Cells[currRow, currCell].StringValue != "")
             {
@@ -207,8 +205,10 @@ namespace ELMA_API
                 currRow++;
             }
 
-            newies.GetRange(0, 1).ForEach(newie => {
+            newies.ForEach(newie => {
                 // проверка что такой учетной записи нет, тогда исполнит код ниже
+                // пол учетной записью подразумевается Уникальный Логин пользователя 
+                // по которому он заходит в систему ELMA
                 if (usersELma.Find(user => user.userName == newie.userName) == null)
                 {
                     Item iFirstName = new Item() 
@@ -244,19 +244,15 @@ namespace ELMA_API
 
                     // зарпос к Elma для создание нового пользователя
                     var resp = this.baseHttp.request(
-                        path: $"/API/REST/Entity/Insert/{typesUidElma.users}",
+                        path: $"/API/REST/Entity/Insert/{TypesUidElma.users}",
                         method: "POST",
                         body: JsonConvert.SerializeObject(requestBody)
                     );
-
-                    // Console.WriteLine(JsonConvert.SerializeObject(requestBody));
 
                     // добавление ответа в хранилище от Elma на запрос обновление данных пользоваетля
                     responsesElma.Add(resp);
                 }
             });
-
-
 
             // логирует кол-во пользователей которых нет на сервере elma
             if (newies.Count != 0)
@@ -264,7 +260,8 @@ namespace ELMA_API
 
             // логирует ответы от сервера elma если добавит хотябы одного пользователя
             if (responsesElma.Count != 0) 
-                Log.Success(SuccessTitle.updatedData, $"academic titles are updated for users: {responsesElma.Count}");
+                Log.Success(SuccessTitle.uploadNewUsers, $"number of new users added: {responsesElma.Count}");
+            else Log.Success(SuccessTitle.synchronized, "all user synchronized");
         }
     }
 

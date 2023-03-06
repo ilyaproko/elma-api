@@ -7,12 +7,10 @@ namespace ELMA_API
     {
         public BaseHttp baseHttp;
         public RequestElma reqElma;
-        public TypesUidElma typesUidElma;
 
-        public UploadData(BaseHttp baseHttp, RequestElma reqElma, TypesUidElma typesUidElma) {
+        public UploadData(BaseHttp baseHttp, RequestElma reqElma) {
             this.baseHttp = baseHttp; // нужен для простых запросов-http к серверу Elma
             this.reqElma = reqElma; // нужен для уже подготовленных запросов к Elma
-            this.typesUidElma = typesUidElma; // нужен для уникальных идентификаторов Elma
         }
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace ELMA_API
                 }".Replace("INJECTED_VALUE_IN_TEXT", plan);
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.eduPlans),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.eduPlans),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -126,7 +124,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_SHORT_NAME", facultyMissed.shortName); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.faculties),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.faculties),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -178,7 +176,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_NAIMENOVANIE", discipline); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.disciplines),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.disciplines),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -253,7 +251,7 @@ namespace ELMA_API
                 .Replace("INJECTED_VALUE_KOD", directPre.Kod); // заменяем значение в тексте
 
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.direcPreparations),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.direcPreparations),
                     method: "POST",
                     body: textReqInsert
                 );
@@ -398,7 +396,7 @@ namespace ELMA_API
                 .Replace("INJECT_ROOM_DEPARTMENT", department.Room);
             
                 var responseInsert = this.baseHttp.request(
-                    path: String.Format("/API/REST/Entity/Insert/{0}", this.typesUidElma.departments),
+                    path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.departments),
                     method: "POST",
                     body: textReqInsert
                 );

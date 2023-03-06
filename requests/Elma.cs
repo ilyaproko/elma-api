@@ -7,12 +7,10 @@ namespace ELMA_API
     class RequestElma
     {
         public BaseHttp baseHttp;
-        public TypesUidElma typesUidElma;
 
-        public RequestElma(BaseHttp baseHttp, TypesUidElma typesUidElma) 
+        public RequestElma(BaseHttp baseHttp) 
         {
             this.baseHttp = baseHttp;
-            this.typesUidElma = typesUidElma;
         }
 
         /// <summary>
@@ -45,7 +43,7 @@ namespace ELMA_API
             // this.typesUidElma.eduPlans уникальный индентификатор для справочников 'учебные планы' 
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.eduPlans
+                ["type"] = TypesUidElma.eduPlans
             };
 
             var getAllPlans = this.baseHttp.request(
@@ -72,7 +70,7 @@ namespace ELMA_API
             // this.typesUidElma.faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.faculties
+                ["type"] = TypesUidElma.faculties
             };
 
             var getAllFaculties = this.baseHttp.request(
@@ -105,7 +103,7 @@ namespace ELMA_API
             // this.typesUidElma.disciplines уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.disciplines
+                ["type"] = TypesUidElma.disciplines
             };
 
             var getAllDisciplines = this.baseHttp.request(
@@ -136,7 +134,7 @@ namespace ELMA_API
             // this.typesUidElma.direcPreparation уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.direcPreparations
+                ["type"] = TypesUidElma.direcPreparations
             };
 
             var getAllDirectionPre = this.baseHttp.request(
@@ -170,7 +168,7 @@ namespace ELMA_API
         public Data findDirectPrepById(string id)
         {
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.direcPreparations,
+                ["type"] = TypesUidElma.direcPreparations,
                 ["id"] = id
             };
 
@@ -199,7 +197,7 @@ namespace ELMA_API
             // this.typesUidElma.department уникальный индентификатор для справочников "кафедры" из базы данных Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.departments
+                ["type"] = TypesUidElma.departments
             };
 
             var getAllDepartments = this.baseHttp.request(
@@ -230,7 +228,7 @@ namespace ELMA_API
             // this.typesUidElma.faculties уникальный идентификатор для справочников Факультеты на сервере Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.faculties,
+                ["type"] = TypesUidElma.faculties,
                 ["q"] = EQLquery,
                 ["limit"] = "1"
             };
@@ -255,7 +253,7 @@ namespace ELMA_API
             // this.typesUidElma.preparationProfile уникальный индентификатор для справочников "профили подготовки" из базы данных Elma
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.preparationProfile
+                ["type"] = TypesUidElma.preparationProfile
             };
 
             var getPreProfiles = this.baseHttp.request(
@@ -298,7 +296,7 @@ namespace ELMA_API
             // this.typesUidElma.groups уникальный иднетификатор для справочников Группы на сервере
             // define query parameters for url-http
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = this.typesUidElma.groups
+                ["type"] = TypesUidElma.groups
             };
 
             var getGroups = this.baseHttp.request(
@@ -330,7 +328,7 @@ namespace ELMA_API
         public List<Root> users() 
         {
             var queryParameters = new Dictionary<string, string>() {
-                ["type"] = typesUidElma.users
+                ["type"] = TypesUidElma.users
             };
 
             var getUsers = this.baseHttp.request(
