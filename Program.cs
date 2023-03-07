@@ -58,7 +58,7 @@ namespace ELMA_API
                 ctx.Status("faculties");
                 uploadData.Faculties(
                     facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
-            
+
                 // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
                 ctx.Status("disciplines");
                 uploadData.Disciplines(
@@ -95,6 +95,8 @@ namespace ELMA_API
                 ctx.Status("academic titles");
                 uploadExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
             });
+
+
 
             // reqElma.users().FindAll(user => {
             //     return reqElma.getValueItem(user.Items, "UchyonoeZvanie") != null;

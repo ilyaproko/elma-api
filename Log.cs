@@ -50,10 +50,10 @@ namespace ELMA_API {
             String resultStr = "";
 
             // time -> (<TIME>)
-            resultStr += $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
+            resultStr += $"[[[dodgerblue1]{date.ToString("HH:mm:ss")}[/]]]";
             
             // -> (<TIME>) info
-            resultStr += " [green3 invert bold]success[/]";
+            resultStr += " [[[green3_1 bold]success[/]]]";
             
             // TITLE
             // ! logic color Theme for title
@@ -87,14 +87,14 @@ namespace ELMA_API {
             String resultStr = "";
 
             // time -> (<TIME>)
-            resultStr +=  $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
+            resultStr +=  $"[[[dodgerblue1]{date.ToString("HH:mm:ss")}[/]]]";
             // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
             // -> (...) <WARN>
-            resultStr += " [orangered1 invert bold]warn|||[/]";
+            resultStr += " [[[orangered1 bold]warn[/]]]";
 
             // * Title
-            resultStr += $" [orangered1]{title.ToLower()}[/]";
+            resultStr += $" [orangered1]   {title.ToLower()}[/]";
 
             resultStr += $" [white]>[/]";
 
@@ -112,14 +112,14 @@ namespace ELMA_API {
             String resultStr = "";
 
             // time -> (<TIME>)
-            resultStr +=  $"[dodgerblue2]|{date.ToString("HH:mm:ss")}|[/]";
+            resultStr +=  $"[[[dodgerblue1]{date.ToString("HH:mm:ss")}[/]]]";
             // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
 
             // -> (...) <WARN>
-            resultStr += " [gold1 invert bold]notice|[/]";
+            resultStr += " [[[gold1 bold]notice[/]]]";
 
             // * Title
-            resultStr += $" [gold1]{title.ToLower()}[/]";
+            resultStr += $" [gold1] {title.ToLower()}[/]";
 
             resultStr += $" [white]>[/]";
 

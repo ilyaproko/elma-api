@@ -18,6 +18,17 @@ namespace ELMA_API
         /// if pass nestedNameItem that mean that main Object has dependency
         /// that It has pair Name/Value that we want to get
         /// </summary>
+        /// <param name="items">Список Item</param>
+        /// <param name="nameItem">
+        /// Принимает наименование Item или если это вложенный Item (т.е. зависимость)
+        /// указывается наименование данной зависимости и обезательно параметр nestedItemName
+        /// который и будет вытаскивать необходимый Item в этой вложенной завимимости
+        /// </param>
+        /// <param name="nestedItemName"></param>
+        /// <returns>
+        /// При условии что наименование Item указано правильно вернет значение 
+        /// данного Item или если не найдет тогда null
+        /// </returns>
         public string getValueItem(
             List<Item> items, 
             string nameItem, 
@@ -291,40 +302,39 @@ namespace ELMA_API
             return storageProfiles;
         }
 
-        public List<String> groups()
+        public List<Root> groups()
         {
             // this.typesUidElma.groups уникальный иднетификатор для справочников Группы на сервере
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.groups
-            };
 
             var getGroups = this.baseHttp.request(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
-
-            List<string> uniqueNameGroups = new List<string>();
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.groups
+                }
+            );
 
             // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> respGroups = JsonConvert.DeserializeObject<List<Root>>(getGroups);
+            List<Root> respGroups = JsonConvert.DeserializeObject<List<Root>>(getGroups.body);
 
-            foreach (var group in respGroups)
-                foreach (var item in group.Items)
-                    if (item.Name == "Naimenovanie" 
-                        && !uniqueNameGroups.Contains(item.Value)) uniqueNameGroups.Add(item.Value);
-
-            foreach (var item in uniqueNameGroups)
-            {
-                Console.WriteLine(item);
-            }
-            Console.WriteLine(uniqueNameGroups.Count);
-
-
-            return new List<string>();
+            return respGroups;
         }
 
+        public List<Root> students()
+        {
+            var getStudents = this.baseHttp.request(
+                path: "/API/REST/Entity/Query",
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.students
+                }
+            );
+
+            // преобразование ответа от сервера типа string(json) в объектный тип
+            List<Root> respStudents = JsonConvert.DeserializeObject<List<Root>>(getStudents.body);
+
+            return respStudents;
+        }
         public List<Root> users() 
         {
             var getUsers = this.baseHttp.request(
