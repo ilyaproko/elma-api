@@ -50,7 +50,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonUchebnyePlany = JsonConvert.DeserializeObject<List<Root>>(getAllPlans);
@@ -77,7 +77,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
             
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonFaculties = JsonConvert.DeserializeObject<List<Root>>(getAllFaculties);
@@ -110,7 +110,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonDiscipline = JsonConvert.DeserializeObject<List<Root>>(getAllDisciplines);
@@ -141,7 +141,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonDirectionsPre = 
@@ -180,7 +180,7 @@ namespace ELMA_API
                     path: "/API/REST/Entity/Load",
                     queryParams: queryParameters,
                     method: "GET"
-                );
+                ).body;
 
                 // преобразование ответа от сервера типа string(json) в объектный тип
                 Data directPrep = JsonConvert.DeserializeObject<Data>(findDirectPrep);
@@ -204,7 +204,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonDepartments = 
@@ -237,7 +237,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            );
+            ).body;
 
             // преобразование ответа от сервера типа string(json) в объектный тип
             List<Root> resJsonFaculty = JsonConvert.DeserializeObject<List<Root>>(findFaculty);
@@ -260,7 +260,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             // storage for Name Preparation Profile and Code's Direction Preparation 
             // -> Наименование Профеля Подготовки, Шифр и Id Направления подготовки
@@ -303,7 +303,7 @@ namespace ELMA_API
                 path: "/API/REST/Entity/Query",
                 queryParams: queryParameters,
                 method: "GET"
-            ); // -> тип Тела-Ответа вернет как string(json)
+            ).body; // -> тип Тела-Ответа вернет как string(json)
 
             List<string> uniqueNameGroups = new List<string>();
 
@@ -327,18 +327,16 @@ namespace ELMA_API
 
         public List<Root> users() 
         {
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.users
-            };
-
             var getUsers = this.baseHttp.request(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.users
+                }
             );
 
             // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> respUsers = JsonConvert.DeserializeObject<List<Root>>(getUsers);
+            List<Root> respUsers = JsonConvert.DeserializeObject<List<Root>>(getUsers.body);
 
             return respUsers;
         }

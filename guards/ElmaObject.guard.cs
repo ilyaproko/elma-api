@@ -22,7 +22,7 @@ namespace ELMA_API
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
                     ["uid"] = typeUidElma
-            });
+            }).body;
             
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(respHtml);

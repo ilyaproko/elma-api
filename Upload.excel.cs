@@ -32,7 +32,7 @@ namespace ELMA_API
 
             // проверка существует ли в объекте-спрвочнике ELMA "user"
             // ключ с конкретным типом данных 
-            if (!ElmaObject.existRecord(baseHttp, TypesUidElma.users, "UchyonoeZvanie", "перечислениееее"))
+            if (!ElmaObject.existRecord(baseHttp, TypesUidElma.users, "UchyonoeZvanie", "перечисление"))
                 throw new Exception("Error existing record object ELMA");
 
             // получение всех пользоваетелей user из сервера elma
@@ -108,7 +108,7 @@ namespace ELMA_API
                         path: $"/API/REST/Entity/Update/{TypesUidElma.users}/{tryFindUser.entityId}",
                         method: "POST",
                         body: JsonConvert.SerializeObject(requestBody)
-                    );
+                    ).body;
 
                     // добавление ответа в хранилище от Elma на запрос обновление данных пользоваетля
                     responsesElma.Add(resp);
@@ -247,7 +247,7 @@ namespace ELMA_API
                         path: $"/API/REST/Entity/Insert/{TypesUidElma.users}",
                         method: "POST",
                         body: JsonConvert.SerializeObject(requestBody)
-                    );
+                    ).body;
 
                     // добавление ответа в хранилище от Elma на запрос обновление данных пользоваетля
                     responsesElma.Add(resp);

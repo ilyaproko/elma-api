@@ -62,7 +62,7 @@ namespace ELMA_API
                     path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.eduPlans),
                     method: "POST",
                     body: textReqInsert
-                );
+                ).body;
 
                 // добавление результата запроса на внедрение данных в список
                 plans_inserted.Add($"{plan} plan, id {responseInsert} successfully injected on ELMA");
@@ -127,7 +127,7 @@ namespace ELMA_API
                     path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.faculties),
                     method: "POST",
                     body: textReqInsert
-                );
+                ).body;
                 // добавление результата запроса на внедрение данных в список
                 insertedData.Add($"{facultyMissed.longName} faculty, id {responseInsert} successfully injected on ELMA");
             }
@@ -179,7 +179,7 @@ namespace ELMA_API
                     path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.disciplines),
                     method: "POST",
                     body: textReqInsert
-                );
+                ).body;
 
                 // добавление результата запроса на внедрение данных в список
                 insertedData.Add($"{discipline} discipline, id {responseInsert} successfully injected on ELMA");
@@ -254,7 +254,7 @@ namespace ELMA_API
                     path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.direcPreparations),
                     method: "POST",
                     body: textReqInsert
-                );
+                ).body;
 
                 // добавление результата запроса на внедрение данных в список
                 insertedData.Add($"{directPre.Kod} direction preparations code, id {responseInsert} successfully injected on ELMA");
@@ -399,7 +399,7 @@ namespace ELMA_API
                     path: String.Format("/API/REST/Entity/Insert/{0}", TypesUidElma.departments),
                     method: "POST",
                     body: textReqInsert
-                );
+                ).body;
 
                 insertedData.Add(responseInsert);
             }

@@ -44,41 +44,41 @@ namespace ELMA_API
 
             // * раздел для выгрузки данных из БД деканата в Elma
             // спинер Информирующий о Стутесе Процесса Программы
-            // AnsiConsole.Status()
-            //     .Spinner(Spinner.Known.BouncingBar)
-            //     .SpinnerStyle(Style.Parse("green1"))
-            //     .Start("[white]Process uploding[/]", ctx => 
-            // {
-            //     // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-            //     ctx.Status("educational plans");
-            //     uploadData.EducationalPlans(
-            //         eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.BouncingBar)
+                .SpinnerStyle(Style.Parse("green1"))
+                .Start("[white]Process uploding[/]", ctx => 
+            {
+                // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
+                ctx.Status("educational plans");
+                uploadData.EducationalPlans(
+                    eduPlansDB: RequestDatabase.getUchebnyePlany()); // "учебные планы" из базы данных деканат
 
-            //     // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-            //     ctx.Status("faculties");
-            //     uploadData.Faculties(
-            //         facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
+                // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
+                ctx.Status("faculties");
+                uploadData.Faculties(
+                    facultiesDB: RequestDatabase.getFakuljtety()); // факультеты из БД деканат
             
-            //     // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-            //     ctx.Status("disciplines");
-            //     uploadData.Disciplines(
-            //         disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
+                // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
+                ctx.Status("disciplines");
+                uploadData.Disciplines(
+                    disciplinesDB: RequestDatabase.getDisciplines()); // дисциплины из БД деканат
 
-            //     // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-            //     ctx.Status("direction preparations");
-            //     uploadData.DirecsPre(
-            //         direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
+                // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
+                ctx.Status("direction preparations");
+                uploadData.DirecsPre(
+                    direcsPreDB: RequestDatabase.getDirectionPreparation()); // направеления подготовки из БД деканат
 
-            //     // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-            //     ctx.Status("departments");
-            //     uploadData.Departments(
-            //         departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
+                // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
+                ctx.Status("departments");
+                uploadData.Departments(
+                    departmentsDB: RequestDatabase.getDepartments()); // кафедры из БД деканат
 
-            //     // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
-            //     ctx.Status("profile preparations");
-            //     uploadData.ProfilePrep(
-            //         profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
-            // });
+                // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+                ctx.Status("profile preparations");
+                uploadData.ProfilePrep(
+                    profilesDB: RequestDatabase.getPrepProfiles()); // профили подготовки из БД деканат
+            });
 
             // * раздел для выгрузки данных из Статичных файлов в директории STATIC в Elma
             // спинер Информирующий о Стутесе Процесса Программы

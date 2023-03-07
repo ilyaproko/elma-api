@@ -18,7 +18,24 @@ namespace ELMA_API
             this.auth = this.getAuth(token, user, password);
         }
 
-        public String request(String path, String method, String body = null, Dictionary<string, string> queryParams = null)
+        /// <summary>
+        /// Запросы Http
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="method"></param>
+        /// <param name="body">тело запросы, если есть</param>
+        /// <param name="queryParams">параметры строки запросы</param>
+        /// <param name="elmaTokens">
+        ///  Добавляет к запросы headers c токенами которые
+        ///  необходимы для запросов к серверу elma,
+        ///  поумолчанию true т.е. всегда добавляет заголовки с токенами
+        ///  </param>
+        public ResponseOnRequest request(
+            String path, 
+            String method, 
+            String body = null, 
+            Dictionary<string, string> queryParams = null,
+            bool elmaTokens = true)
         {
             string fullUrl = "http://" + this.hostaddress + path;
 
@@ -34,8 +51,13 @@ namespace ELMA_API
             
             HttpWebRequest req = WebRequest.Create(String.Format(fullUrl)) as HttpWebRequest;
             req.Method = method;
-            req.Headers.Add("AuthToken", this.auth.AuthToken);
-            req.Headers.Add("SessionToken", this.auth.SessionToken);
+
+            // добавление в заголовки токенов elma
+            if (elmaTokens) {
+                req.Headers.Add("AuthToken", this.auth.AuthToken);
+                req.Headers.Add("SessionToken", this.auth.SessionToken);
+            }
+            
             req.Timeout = 10000;
             req.ContentType = "application/json; charset=utf-8";
 
@@ -47,16 +69,19 @@ namespace ELMA_API
                 sendStream.Write(sendBody, 0, sendBody.Length);
             }
             
-            var res = req.GetResponse() as HttpWebResponse;
-            var resStream = res.GetResponseStream();
+            var response = req.GetResponse() as HttpWebResponse;
+            var resStream = response.GetResponseStream();
             var sr = new StreamReader(resStream, Encoding.UTF8);
 
-            return sr.ReadToEnd();
+            return new ResponseOnRequest {
+                body = sr.ReadToEnd(),
+                response = response
+            };
         }
 
         private AuthJsonResponse getAuth(string applicationToken, string user, string password)
         {
-            //создаем веб запрос
+            //создаем http запрос
             HttpWebRequest req = WebRequest.Create(String.Format(
                 "http://{0}/API/REST/Authorization/LoginWith?username={1}", hostaddress, user)) as HttpWebRequest;
             req.Headers.Add("ApplicationToken", applicationToken);
@@ -107,5 +132,10 @@ namespace ELMA_API
         public string CurrentUserId { get; set; }
         public string Lang { get; set; }
         public string SessionToken { get; set; }
+    }
+
+    class ResponseOnRequest {
+        public HttpWebResponse response { get; set; }
+        public string body { get; set; }
     }
 }
