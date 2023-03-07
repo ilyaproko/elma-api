@@ -12,7 +12,7 @@ namespace ELMA_API {
     
     class Log
     {
-        static public void StartApp() 
+        static public void Launch() 
         {
             List<String> descriptionApp = new List<String>();
             descriptionApp.Add(" The main purpose of the app is synchronized the data of practices from database university and elma server. The data");

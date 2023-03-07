@@ -39,7 +39,7 @@ namespace ELMA_API
                 if (nestedItemName == null) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
                     if (item.Name == nameItem) return item.Value; // RETURN !!!
                 } else {
-                    if (item.Name == nameItem) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
+                    if (item.Name == nameItem && item.Data != null) { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
                         foreach (var itemNested in item.Data.Items) { // HAS NESTED DEPENDENCY
                             if (itemNested.Name == nestedItemName) return itemNested.Value; // RETURN !!!
                         }
