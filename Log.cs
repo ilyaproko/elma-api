@@ -40,11 +40,6 @@ namespace ELMA_API {
 
         static public void Success(String title, String message)
         {
-            // separator title and message
-            String sepTitleMessage = " >";
-            if (title.ToLower() == SuccessTitle.uploadElma.ToLower()
-                || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()) sepTitleMessage = " /";
-
             var date = DateTime.Now;
 
             String resultStr = "";
@@ -56,25 +51,13 @@ namespace ELMA_API {
             resultStr += " [[[green3_1 bold]success[/]]]";
             
             // TITLE
-            // ! logic color Theme for title
-            resultStr += $@" {(
-                       title.ToUpper() == SuccessTitle.uploadElma.ToUpper()
-                    || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
-                    ? "[orangered1]" 
-                    : "[green1]")}{title.ToLower()}[/]";
+            resultStr += " [green1]" + title.ToLower() + "[/]";
             
-            // ! logic color Theme for separator between Title and Message
-            resultStr += title.ToUpper() == SuccessTitle.uploadElma.ToUpper() 
-                        || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
-                ? $"[orangered1]{sepTitleMessage}[/]" 
-                : $"[white]{sepTitleMessage}[/]";
+            // separator between Title and Message
+            resultStr += " [white]>[/]";
             
             // MESSAGE
-            // ! logic color Theme for message
-            resultStr += title.ToUpper() == SuccessTitle.uploadElma.ToUpper()
-                         || title.ToUpper() == SuccessTitle.uploadExcel.ToUpper()
-                ? $"[orangered1] {message.ToLower()}[/]" 
-                : $"[white] {message.ToLower()}[/]";
+            resultStr += $"[white] {message.ToLower()}[/]";
 
             // logging
             AnsiConsole.MarkupLine(resultStr);
@@ -121,6 +104,7 @@ namespace ELMA_API {
             // * Title
             resultStr += $" [gold1] {title.ToLower()}[/]";
 
+            // * separate
             resultStr += $" [white]>[/]";
 
             // * Message
@@ -130,16 +114,59 @@ namespace ELMA_API {
             AnsiConsole.MarkupLine(resultStr);
         }
     
+        static public void Info(string title, string message, string colorTitle = null) {
+            
+            // separator title and message
+            String sepTitleMessage = " >";
+            if (colorTitle != null) sepTitleMessage = " /";
+
+            var date = DateTime.Now;
+
+            String resultStr = "";
+
+            // time -> (<TIME>)
+            resultStr +=  $"[[[dodgerblue1]{date.ToString("HH:mm:ss")}[/]]]";
+            // Console.Write($"[{date.ToString()}]", System.Drawing.Color.FromArgb(22, 138, 173));
+
+            // -> (...) <INFO>
+            // and color info
+            string colorInfoStatus = "white";
+            if (colorTitle != null) colorInfoStatus = colorTitle;
+    
+            resultStr += $" [[{(colorTitle != null ? $"[{colorTitle} bold]" : "[white bold]")}info[/]]]";
+
+            // * TITLE
+            resultStr += $@" {( colorTitle != null ? $"[{colorTitle}]" : "[white]")}{title.ToLower()}[/]";
+            
+            // ! logic color Theme for separator between Title and Message
+            resultStr += colorTitle != null ? $"[{colorTitle}]{sepTitleMessage}[/]" 
+                : $"[white]{sepTitleMessage}[/]";
+            
+            // * MESSAGE
+            // ! logic color Theme for message
+            resultStr += colorTitle != null ? $"[{colorTitle}] {message.ToLower()}[/]" 
+                : $"[white] {message.ToLower()}[/]";
+
+            // logging
+            AnsiConsole.MarkupLine(resultStr);
+        }
     }
 
+    public static class InfoTitle 
+    {
+        public static readonly string common = "common";
+        public static readonly string uploadElma = "upload-elma";
+        public static readonly string uploadExcel = "upload-excel";
+        public static readonly string dataElma = "data-elma";
+        public static readonly string dataDB = "data-db";
+        public static readonly string missed = "missed";
+    }
 
     public static class SuccessTitle 
     {
         public static readonly string launch = "launch";
         public static readonly string loginElma = "login-elma";
         public static readonly string loginDB = "login-db";
-        public static readonly string uploadElma = "upload-elma";
-        public static readonly string uploadExcel = "upload-excel";
         public static readonly string dataElma = "data-elma";
         public static readonly string dataDB = "data-db";
         public static readonly string missed = "missed";
@@ -152,7 +179,7 @@ namespace ELMA_API {
 
     public static class WarnTitle 
     {
-        public static readonly string fileNotFount = "not-found";
+        public static readonly string fileNotFound = "not-found";
         public static readonly string directory = "directory";
         public static readonly string notFoundFaculty = "not-found-faculty";
         public static readonly string notFoundDirectPrep = "not-found-direct-prep";

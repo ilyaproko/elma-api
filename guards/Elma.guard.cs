@@ -4,7 +4,7 @@ using HtmlAgilityPack;
 
 namespace ELMA_API
 {
-    class ElmaObject
+    class ElmaGuard
     {
         /// <summary>
         /// проверка на существование конкретного ключа в объекта-справочнике ELMA
@@ -22,7 +22,7 @@ namespace ELMA_API
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
                     ["uid"] = typeUidElma
-            }).body;
+            }).bodyString;
             
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(respHtml);

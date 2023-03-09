@@ -73,9 +73,30 @@ namespace ELMA_API
             var resStream = response.GetResponseStream();
             var sr = new StreamReader(resStream, Encoding.UTF8);
 
-            return new ResponseOnRequest {
-                body = sr.ReadToEnd(),
-                response = response
+            return new ResponseOnRequest
+            {
+                bodyString = sr.ReadToEnd(),
+                response = response,
+            };
+        }
+
+        public ResponseOnRequest<T> request<T>(
+            String path, 
+            String method, 
+            String body = null, 
+            Dictionary<string, string> queryParams = null,
+            bool elmaTokens = true)
+        {
+            var resp = this.request(path, method, body, queryParams, elmaTokens);
+
+            // ! преобразование ответа строки http в объект C# с типом данных generic T
+            var jsonBody = JsonConvert.DeserializeObject<T>(resp.bodyString);
+
+            return new ResponseOnRequest<T>
+            {
+                bodyString = resp.bodyString,
+                response = resp.response,
+                jsonBody = jsonBody,
             };
         }
 
@@ -134,8 +155,19 @@ namespace ELMA_API
         public string SessionToken { get; set; }
     }
 
-    class ResponseOnRequest {
+    /// <summary>
+    /// Ответ на запрос по http
+    /// </summary>
+    /// <typeparam name="T">Нужен что определить преобразование тела ответа из строки в С# объект</typeparam>
+    class ResponseOnRequest<T> 
+    {
         public HttpWebResponse response { get; set; }
-        public string body { get; set; }
+        public string bodyString { get; set; }
+        public T jsonBody { get; set; }
+    }
+     class ResponseOnRequest 
+    {
+        public HttpWebResponse response { get; set; }
+        public string bodyString { get; set; }
     }
 }

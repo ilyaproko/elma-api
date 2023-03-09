@@ -9,8 +9,8 @@ namespace ELMA_API
     /// </summary>
     class PossibilitiesElma
     {
-        RequestElma reqElma; // зависимость для получения данных от сервера Elma
-        public PossibilitiesElma(RequestElma reqElma) {
+        Elma reqElma; // зависимость для получения данных от сервера Elma
+        public PossibilitiesElma(Elma reqElma) {
             this.reqElma = reqElma;
         }
 
@@ -28,12 +28,12 @@ namespace ELMA_API
 
             foreach (var group in groups)
             {
-                var idGroup = reqElma.getValueItem(group.Items, "Id");
+                var idGroup = Elma.getValueItem(group.Items, "Id");
 
                 int countStudents = 0;
                 students.ForEach(student =>
                 {
-                    var idGroupInStudent = reqElma.getValueItem(student.Items, "Gruppa", "Id");
+                    var idGroupInStudent = Elma.getValueItem(student.Items, "Gruppa", "Id");
                     if (idGroupInStudent == idGroup)
                         countStudents++;
                 });
@@ -57,7 +57,7 @@ namespace ELMA_API
         public List<Root> groupsWithoutStudents() {
             return this.studentsEveryGroup().FindAll(group => 
             {
-                return int.Parse(reqElma.getValueItem(group.Items, "HowManyStudents")) == 0;
+                return int.Parse(Elma.getValueItem(group.Items, "HowManyStudents")) == 0;
             });
         }
 
@@ -70,7 +70,7 @@ namespace ELMA_API
             {
                 // если вернет null значит для данного студента 
                 // группа не определена
-                var gruppa = reqElma.getValueItem(stud.Items, "Gruppa", "Id");
+                var gruppa = Elma.getValueItem(stud.Items, "Gruppa", "Id");
 
                 return gruppa == null ? true : false;
             });

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace ELMA_API
 {
-    class RequestElma
+    class Elma
     {
         public BaseHttp baseHttp;
 
-        public RequestElma(BaseHttp baseHttp) 
+        public Elma(BaseHttp baseHttp) 
         {
             this.baseHttp = baseHttp;
         }
@@ -29,7 +29,7 @@ namespace ELMA_API
         /// При условии что наименование Item указано правильно вернет значение 
         /// данного Item или если не найдет тогда null
         /// </returns>
-        public string getValueItem(
+        static public string getValueItem(
             List<Item> items, 
             string nameItem, 
             string nestedItemName = null)
@@ -49,60 +49,80 @@ namespace ELMA_API
             return null;
         }
 
+        /// <summary>
+        /// поиск Справочника Направления Подготовки в ELMA по Id
+        /// </summary>
+        /// <param name="id">Id объекта-справочника elma "Напрпвление Подготовки"</param>
+        /// <returns></returns>
+        public Data findDirectPrepById(string id)
+        {
+            // пробуем найти Направление Подготовки ПО ID 
+            // если не найдет тогда функция вернет null
+            // и будет логгирования в консоле
+            try 
+            {
+                var findDirectPrep = this.baseHttp.request<Data>(
+                    path: "/API/REST/Entity/Load",
+                    method: "GET",
+                    queryParams: new Dictionary<string, string>() {
+                        ["type"] = TypesUidElma.direcPreparations,
+                        ["id"] = id
+                    }
+                );
+
+                return findDirectPrep.jsonBody;
+
+            } 
+            catch (System.Exception) 
+            {
+
+                Log.Warn(WarnTitle.notFoundDirectPrep, $"Elma hasn't direction preparation with ID = {id ?? "null"}");
+                return null;
+            }
+        }
+
         public List<string> educationalPlans()
         {
-            // this.typesUidElma.eduPlans уникальный индентификатор для справочников 'учебные планы' 
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.eduPlans
-            };
-
-            var getAllPlans = this.baseHttp.request(
+            // TypesUidElma.eduPlans уникальный индентификатор для справочников 'учебные планы' 
+            var getAllPlans = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
-
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonUchebnyePlany = JsonConvert.DeserializeObject<List<Root>>(getAllPlans);
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.eduPlans
+                }
+            );
 
             // list storage for uchebnyePlany from ELMA-server -> get value Naimenovanie (value example : z23030312-18.plx)
             List<string> eduPlansElma = new List<string>();
 
             // получение значений атрибута "Naimenovanie" справочника "учебные планы"
-            foreach (Root row in resJsonUchebnyePlany)
-                eduPlansElma.Add(this.getValueItem(row.Items, "Naimenovanie"));
+            foreach (Root plan in getAllPlans.jsonBody)
+                eduPlansElma.Add(Elma.getValueItem(plan.Items, "Naimenovanie"));
 
             return eduPlansElma;
         }
         
         public List<FacultyGuide> faculties()
         {
-            // this.typesUidElma.faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.faculties
-            };
-
-            var getAllFaculties = this.baseHttp.request(
+            // TypesUidElma.faculties уникальный индентификатор для справочников 'факультеты' из базы данных Elma
+            var getAllFaculties = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
-            
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonFaculties = JsonConvert.DeserializeObject<List<Root>>(getAllFaculties);
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.faculties
+                }
+            );
 
             // list storage for faculties from Elma-server -> get values NaimenovanieSokraschennoe, NaimenovaniePolnoe
             List<FacultyGuide> faculties_elma = new List<FacultyGuide>();
 
             // получение значений атрибута "NaimenovanieSokraschennoe", "NaimenovaniePolnoe" справочника "факультеты"
-            foreach (Root row in resJsonFaculties) {
+            foreach (Root facultyElma in getAllFaculties.jsonBody) {
                 FacultyGuide faculty = new FacultyGuide();
-                foreach (Item cell in row.Items) {
-                    if (cell.Name == "NaimenovaniePolnoe") faculty.longName = cell.Value;
-                    if (cell.Name == "NaimenovanieSokraschennoe") faculty.shortName = cell.Value;
-                }
+
+                faculty.longName = Elma.getValueItem(facultyElma.Items, "NaimenovaniePolnoe");
+                faculty.shortName = Elma.getValueItem(facultyElma.Items, "NaimenovanieSokraschennoe");
+
                 faculties_elma.Add(faculty);
             }
 
@@ -111,29 +131,21 @@ namespace ELMA_API
 
         public List<String> disciplines()
         {
-            // this.typesUidElma.disciplines уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.disciplines
-            };
-
-            var getAllDisciplines = this.baseHttp.request(
+            // TypesUidElma.disciplines уникальный индентификатор для справочников 'дисциплины' из базы данных Elma
+            var getAllDisciplines = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
-
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonDiscipline = JsonConvert.DeserializeObject<List<Root>>(getAllDisciplines);
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.disciplines
+                }
+            );
 
             // list storage for disciplines from Elma-server -> get Naimenovanie
             List<String> disciplines = new List<String>();
 
             // получение значений атрибута "Naimenovanie" справочника "дисциплины"
-            foreach (var discipline in resJsonDiscipline) {
-                foreach (var dataDiscipline in discipline.Items) {
-                    if (dataDiscipline.Name == "Naimenovanie") disciplines.Add(dataDiscipline.Value);
-                }
+            foreach (var discipline in getAllDisciplines.jsonBody) {
+                disciplines.Add(Elma.getValueItem(discipline.Items, "Naimenovanie"));
             }
 
             return disciplines;
@@ -142,91 +154,46 @@ namespace ELMA_API
         /// направления подготовки
         public List<DirectionPreparation> directsPreps()
         {
-            // this.typesUidElma.direcPreparation уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.direcPreparations
-            };
-
-            var getAllDirectionPre = this.baseHttp.request(
+            // TypesUidElma.direcPreparation уникальный индентификатор для справочников "направления подготовки" из базы данных Elma
+            var getAllDirectionPre = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
-
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonDirectionsPre = 
-                JsonConvert.DeserializeObject<List<Root>>(getAllDirectionPre);
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.direcPreparations
+                }
+            );
 
             // list storage for directions preparetions from Elma-server -> get Naimenovanie and Kod
             List<DirectionPreparation> direcsPre = new List<DirectionPreparation>();
 
-            foreach (Root item in resJsonDirectionsPre)
+            foreach (Root directPreElma in getAllDirectionPre.jsonBody)
             {
                 var direcPre = new DirectionPreparation(); // создание сущности для напрв. подготовки
-                foreach (Item datas in item.Items)
-                {
-                    if (datas.Name == "Kod") direcPre.Kod = datas.Value;
-                    if (datas.Name == "Naimenovanie") direcPre.Naimenovanie = datas.Value;
-                }
+
+                direcPre.Kod = Elma.getValueItem(directPreElma.Items, "Kod");
+                direcPre.Naimenovanie = Elma.getValueItem(directPreElma.Items, "Naimenovanie");
+
                 direcsPre.Add(direcPre); // добавление направ. подготовки в хранилище
             }
 
             return direcsPre;
         }
-
-        /// поиск Справочника Направления Подготовки в ELMA по Id
-        public Data findDirectPrepById(string id)
-        {
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.direcPreparations,
-                ["id"] = id
-            };
-
-            // пробуем найти Направление Подготовки ПО ID 
-            // если не найдет тогда функция вернет null
-            // и будет логгирования в консоле
-            try {
-                var findDirectPrep = this.baseHttp.request(
-                    path: "/API/REST/Entity/Load",
-                    queryParams: queryParameters,
-                    method: "GET"
-                ).body;
-
-                // преобразование ответа от сервера типа string(json) в объектный тип
-                Data directPrep = JsonConvert.DeserializeObject<Data>(findDirectPrep);
-
-                return directPrep;
-            } catch (System.Exception) {  
-                Log.Warn(WarnTitle.notFoundDirectPrep, $"Elma hasn't direction preparation with ID = {id ?? "null"}");
-                return null;
-            }
-        }
         
         public List<Root> departments()
         {
-            // this.typesUidElma.department уникальный индентификатор для справочников "кафедры" из базы данных Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.departments
-            };
-
-            var getAllDepartments = this.baseHttp.request(
+            // TypesUidElma.department уникальный индентификатор для справочников "кафедры" из базы данных Elma
+            var getAllDepartments = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.departments
+                }
+            ); 
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonDepartments = 
-                JsonConvert.DeserializeObject<List<Root>>(getAllDepartments);
-
-            // Console.WriteLine(getAllDepartments);
-
-            return resJsonDepartments;
+            return getAllDepartments.jsonBody;
         }
 
-        public List<Item> findFaculty(string nameLong, string nameShort)
+        public List<Item> findFaculties(string nameLong, string nameShort)
         {
             // Elma Query Language - найти все ФАКУЛЬТЕТЫ 
             // где ПолноеНаименование и Сокращенное Наименование соответсвуют ЗНАЧЕНИЮ ПОИСКА
@@ -236,61 +203,46 @@ namespace ELMA_API
             (NaimenovaniePolnoe LIKE `{nameLong}` AND NaimenovanieSokraschennoe LIKE `{nameShort}`) 
             OR (NOT NaimenovaniePolnoe LIKE `` AND NaimenovanieSokraschennoe LIKE `{nameShort}`)
             OR (NaimenovaniePolnoe LIKE `{nameLong}` AND NOT NaimenovanieSokraschennoe LIKE ``)";
-            // this.typesUidElma.faculties уникальный идентификатор для справочников Факультеты на сервере Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.faculties,
-                ["q"] = EQLquery,
-                ["limit"] = "1"
-            };
-
-            var findFaculty = this.baseHttp.request(
+            
+            // TypesUidElma.faculties уникальный идентификатор для справочников Факультеты на сервере Elma
+            var findFaculty = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body;
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.faculties,
+                    ["q"] = EQLquery,
+                    ["limit"] = "1"
+                }
+            );
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resJsonFaculty = JsonConvert.DeserializeObject<List<Root>>(findFaculty);
-
-            // Console.WriteLine($"\n\nNaimenovaniePolnoe LIKE `{nameLong}` OR NaimenovanieSokraschennoe LIKE `{nameShort}`");
-            // Console.WriteLine(findFaculty);
-
-            return resJsonFaculty.Count != 0 ? resJsonFaculty[0].Items : null;
+            return findFaculty.jsonBody.Count != 0 ? findFaculty.jsonBody[0].Items : null;
         }
 
         public List<PrepProfileElma> preparationProfile()
         {
-            // this.typesUidElma.preparationProfile уникальный индентификатор для справочников "профили подготовки" из базы данных Elma
-            // define query parameters for url-http
-            var queryParameters = new Dictionary<string, string>() {
-                ["type"] = TypesUidElma.preparationProfile
-            };
-
-            var getPreProfiles = this.baseHttp.request(
+            // TypesUidElma.preparationProfile уникальный индентификатор для справочников "профили подготовки" из базы данных Elma
+            var getPreProfiles = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
-                queryParams: queryParameters,
-                method: "GET"
-            ).body; // -> тип Тела-Ответа вернет как string(json)
+                method: "GET",
+                queryParams: new Dictionary<string, string>() {
+                    ["type"] = TypesUidElma.preparationProfile
+                }
+            );
 
             // storage for Name Preparation Profile and Code's Direction Preparation 
             // -> Наименование Профеля Подготовки, Шифр и Id Направления подготовки
             List<PrepProfileElma> storageProfiles = new List<PrepProfileElma>();
-            
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> resPreProfiles = 
-                JsonConvert.DeserializeObject<List<Root>>(getPreProfiles);
-
-            foreach (var profile in resPreProfiles)
+            foreach (var profile in getPreProfiles.jsonBody)
             {   
-                string nameProfile = this.getValueItem(profile.Items, "Naimenovanie"); // наименование подготовки
-                string idDirectPrep = this.getValueItem(profile.Items, "NapravleniePodgotovki", "Id"); // ID направления подготовки
+                string nameProfile = Elma.getValueItem(profile.Items, "Naimenovanie"); // наименование подготовки
+                string idDirectPrep = Elma.getValueItem(profile.Items, "NapravleniePodgotovki", "Id"); // ID направления подготовки
                 string codeDirectPrep = null; // Шифр направления подготовки
                 
                 // если в профиле есть вложеннная зависимость -> Направление Подготовки
+                // т.е. для данного профеля указано направление подготовки
                 if (idDirectPrep != null) {
-                    codeDirectPrep = this.getValueItem(this.findDirectPrepById(idDirectPrep).Items, "Kod"); 
+                    codeDirectPrep = Elma.getValueItem(this.findDirectPrepById(idDirectPrep).Items, "Kod"); 
                 }
                 
                 // добавление в хранилище объекта
@@ -304,9 +256,8 @@ namespace ELMA_API
 
         public List<Root> groups()
         {
-            // this.typesUidElma.groups уникальный иднетификатор для справочников Группы на сервере
-
-            var getGroups = this.baseHttp.request(
+            // TypesUidElma.groups уникальный иднетификатор для справочников Группы на сервере
+            var getGroups = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
@@ -314,15 +265,12 @@ namespace ELMA_API
                 }
             );
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> respGroups = JsonConvert.DeserializeObject<List<Root>>(getGroups.body);
-
-            return respGroups;
+            return getGroups.jsonBody;
         }
 
         public List<Root> students()
         {
-            var getStudents = this.baseHttp.request(
+            var getStudents = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
@@ -330,14 +278,11 @@ namespace ELMA_API
                 }
             );
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> respStudents = JsonConvert.DeserializeObject<List<Root>>(getStudents.body);
-
-            return respStudents;
+            return getStudents.jsonBody;
         }
         public List<Root> users() 
         {
-            var getUsers = this.baseHttp.request(
+            var getUsers = this.baseHttp.request<List<Root>>(
                 path: "/API/REST/Entity/Query",
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
@@ -345,10 +290,7 @@ namespace ELMA_API
                 }
             );
 
-            // преобразование ответа от сервера типа string(json) в объектный тип
-            List<Root> respUsers = JsonConvert.DeserializeObject<List<Root>>(getUsers.body);
-
-            return respUsers;
+            return getUsers.jsonBody;
         }
     }
 }
