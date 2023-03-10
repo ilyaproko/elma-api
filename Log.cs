@@ -157,6 +157,7 @@ namespace ELMA_API {
         public static readonly string common = "common";
         public static readonly string uploadElma = "upload-elma";
         public static readonly string uploadExcel = "upload-excel";
+        public static readonly string operateElma = "operate-elma";
         public static readonly string dataElma = "data-elma";
         public static readonly string dataDB = "data-db";
         public static readonly string missed = "missed";
