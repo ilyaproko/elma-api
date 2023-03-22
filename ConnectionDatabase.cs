@@ -5,39 +5,43 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace ELMA_API
+namespace ELMA_API;
+class ConnectionDatabase
 {
-    class ConnectionDatabase
+    // TrustServerCertificate=true обязательно!! иначе будет ошибка TLS протокола
+    SqlConnection sqlConnection;
+
+    public ConnectionDatabase(string dataSource, string initialCatalog)
     {
-        // TrustServerCertificate=true обязательно!! иначе будет ошибка TLS протокола
-        SqlConnection sqlConnection = new SqlConnection(@"Data Source=10.0.0.26;Initial Catalog=Деканат;Integrated Security=True; TrustServerCertificate=true");
+        this.sqlConnection =
+            new SqlConnection($"Data Source={dataSource};Initial Catalog={initialCatalog};Integrated Security=True; TrustServerCertificate=true");
+    }
 
-        public ConnectionDatabase() 
-        {
-            // Logging 
-            Log.Success(SuccessTitle.loginDB, "connection to database is successful");
-        }
+    public ConnectionDatabase()
+    {
+        // Logging 
+        Log.Success(SuccessTitle.loginDB, "connection to database is successful");
+    }
 
-        public void openConnection()
+    public void openConnection()
+    {
+        if (sqlConnection.State == System.Data.ConnectionState.Closed)
         {
-            if (sqlConnection.State == System.Data.ConnectionState.Closed)
-            {
-                sqlConnection.Open();
-                Log.Success("login-db", "connection to database ms sql server is successful");
-            }
+            sqlConnection.Open();
+            Log.Success("login-db", "connection to database ms sql server is successful");
         }
+    }
 
-        public void closeConnection()
+    public void closeConnection()
+    {
+        if (sqlConnection.State == System.Data.ConnectionState.Open)
         {
-            if (sqlConnection.State == System.Data.ConnectionState.Open)
-            {
-                sqlConnection.Close();
-            }
+            sqlConnection.Close();
         }
+    }
 
-        public SqlConnection getConnection()
-        {
-            return sqlConnection;
-        }
+    public SqlConnection getConnection()
+    {
+        return sqlConnection;
     }
 }

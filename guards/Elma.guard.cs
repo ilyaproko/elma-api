@@ -12,17 +12,22 @@ namespace ELMA_API
         /// </summary>
         /// <returns>вернет true если найдет ключ в спрвочнике Elma, иначе null</returns>
         static public bool existRecord(
-            BaseHttp baseHttpElma, 
             string typeUidElma,
             string key,
             string type = null) 
         {
-            var respHtml = baseHttpElma.request(
+            // get enviroment varibles from .env file
+            // we need hostaddress server of elma
+            var env = new EnvModule(".env", log: false);
+            string hostaddress = env.getVar("HOSTADDRESS");
+
+            var respHtml = BaseHttp.request(
+                hostaddress: hostaddress,
                 path: "/API/Help/Type",
                 method: "GET",
                 queryParams: new Dictionary<string, string>() {
                     ["uid"] = typeUidElma
-            }).bodyString;
+            }).bodyResponse;
             
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(respHtml);
@@ -92,9 +97,10 @@ namespace ELMA_API
             // если найдет ключ для данного объекта-справочника elma
             if (tryFindOnlyByKey) {
                 Log.Warn(WarnTitle.keyObjectElma, $"ключ \"{key.Trim()}\" для объекта-справочника elma \"{nameObjectElma}\" найден");
-                Log.Notice(NoticeTitle.check, $"передан тип для функции, следует проверить переданный тип: \"{type.ToLower()}\"");
-                Log.Notice(NoticeTitle.check, $"для ключа \"{key.Trim()}\", типом является \"{findTypeForKey.ToLower()}\"");
-
+                Log.Notice(NoticeTitle.check,
+                           $"передан тип для функции, следует проверить переданный тип: \"{type?.ToLower()}\"");
+                Log.Notice(NoticeTitle.check,
+                           $"для ключа \"{key.Trim()}\", типом является \"{findTypeForKey?.ToLower()}\"");
             }
             else {
                 Log.Warn(WarnTitle.keyObjectElma, $"ключ \"{key.Trim()}\" для объекта-справочника elma \"{nameObjectElma}\" не найден");
