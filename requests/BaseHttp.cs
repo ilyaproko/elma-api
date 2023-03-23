@@ -12,7 +12,7 @@ namespace ELMA_API;
 class BaseHttp
 {
     protected string hostaddress;
-    protected AuthJsonResponse auth;
+    protected ResponseAuthorization auth;
 
     public BaseHttp(string hostaddress, string token, string user, string password)
     {
@@ -212,10 +212,10 @@ class BaseHttp
         };
     }
 
-    private AuthJsonResponse getAuth(string applicationToken, string user, string password)
+    private ResponseAuthorization getAuth(string applicationToken, string user, string password)
     {
         // create http request
-        var request = BaseHttp.request<AuthJsonResponse>(
+        var request = BaseHttp.request<ResponseAuthorization>(
             hostaddress: hostaddress,
             path: "/API/REST/Authorization/LoginWith",
             method: HttpMethods.Post,
@@ -255,7 +255,7 @@ class ParameterEql : QueryParameter
 }
 
 // для обпределение модели ответа в формате json, нужен для Newtonsoft.Json.JsonConvert.DeserailizeObject()
-class AuthJsonResponse
+class ResponseAuthorization
 {
     public string AuthToken { get; set; }
     public string CurrentUserId { get; set; }

@@ -12,12 +12,14 @@ using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Refit;
 using Spectre.Console;
-
+using Client;
+using System.Net.Http.Json;
+using System.Net.Http.Headers;
 
 namespace ELMA_API;
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         // this setting need for spinner progress status currently show up
         System.Console.OutputEncoding = Encoding.UTF8;
@@ -29,7 +31,7 @@ class Program
 
         // get environment variables
         var env = new EnvModule(".env");
-        string user = env.getVar("USER");
+        string username = env.getVar("USER");
         string token = env.getVar("TOKEN");
         string password = env.getVar("PASSWORD");
         string hostaddress = env.getVar("HOSTADDRESS");
@@ -37,102 +39,140 @@ class Program
         string initialCatalogDb = env.getVar("INITIALCATALOG");
 
         // экземпляр для произведения запросов http
-        var baseHttp = new BaseHttp(hostaddress, token, user, password);
+        // var baseHttp = new BaseHttp(hostaddress, token, username, password);
 
         // экземпляр класса с методами для запросов к серверу Elma
         // для получение данных от сервера elma, в основном данные из
         // объектов справочников
-        var elmaApi = new ElmaApi(baseHttp);
+        // var elmaApi = new ElmaApi(baseHttp);
 
         // экземпляр базы данных MsSql Server
         var dbMsSql = new DbMsSql(dataSourceDb, initialCatalogDb);
 
         // экземпляр предоставляющий допоплнительные 
         // возможности работы с elma
-        var possiElma = new ExtendedUserElma(elmaApi, baseHttp);
+        // var possiElma = new ExtendedUserElma(elmaApi, baseHttp);
 
         // экземпляр класса для загрузки данных на сервер Elma
         // которые есть в БД но отсутвуют на сервере Elma
-        var uploadData = new UploadData(baseHttp, elmaApi, dbMsSql);
+        // var uploadData = new UploadData(baseHttp, elmaApi, dbMsSql);
 
         // выгрузка данных на сервер elma из excel файлов
-        var uploadExcel = new UploadExcel(baseHttp, elmaApi);
+        // var uploadExcel = new UploadExcel(baseHttp, elmaApi);
 
         // * раздел для выгрузки данных из БД деканата в Elma
         // спинер Информирующий о Стутесе Процесса Программы
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.BouncingBar)
-            .SpinnerStyle(Style.Parse("green1"))
-            .Start("[white]Process uploding from database[/]", ctx =>
-        {
-            // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
-            ctx.Status("educational plans");
-            var uploadEduPlans =  uploadData.Educational_plans(); // "учебные планы" из базы данных деканат
-            Log.UploadDb(uploadEduPlans);
+        // AnsiConsole.Status()
+        //     .Spinner(Spinner.Known.BouncingBar)
+        //     .SpinnerStyle(Style.Parse("green1"))
+        //     .Start("[white]Process uploding from database[/]", ctx =>
+        // {
+        //     // загрузка справочников "учебные планы" которые отсутсвуют на сервере ELMA
+        //     ctx.Status("educational plans");
+        //     var uploadEduPlans =  uploadData.Educational_plans(); // "учебные планы" из базы данных деканат
+        //     Log.UploadDb(uploadEduPlans);
 
-            // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
-            ctx.Status("faculties");
-            var uploadFaculties = uploadData.Faculties(); // факультеты из БД деканат
-            Log.UploadDb(uploadFaculties);
+        //     // загрузка справочников "факультеты" которые отсутствуют на сервере ELMA
+        //     ctx.Status("faculties");
+        //     var uploadFaculties = uploadData.Faculties(); // факультеты из БД деканат
+        //     Log.UploadDb(uploadFaculties);
 
-            // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
-            ctx.Status("disciplines");
-            var uploadDiscplines = uploadData.Disciplines(); // дисциплины из БД деканат
-            Log.UploadDb(uploadDiscplines);
+        //     // загрузка спраовочников "дисциплины" которые отсутствуют на сервере ELMA
+        //     ctx.Status("disciplines");
+        //     var uploadDiscplines = uploadData.Disciplines(); // дисциплины из БД деканат
+        //     Log.UploadDb(uploadDiscplines);
 
-            // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
-            ctx.Status("direction preparations");
-            var uploadDirecPreps = uploadData.Direction_preparations(); // направеления подготовки из БД деканат
-            Log.UploadDb(uploadDirecPreps);
+        //     // загрузка спраовочников "направления подготовки" которые отсутствуют на сервере ELMA
+        //     ctx.Status("direction preparations");
+        //     var uploadDirecPreps = uploadData.Direction_preparations(); // направеления подготовки из БД деканат
+        //     Log.UploadDb(uploadDirecPreps);
 
-            // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
-            ctx.Status("departments");
-            var uploadDepartments = uploadData.Departments(); // кафедры из БД деканат
-            Log.UploadDb(uploadDepartments);
+        //     // загрузка спраовочников "кафедры" которые отсутствуют на сервере ELMA
+        //     ctx.Status("departments");
+        //     var uploadDepartments = uploadData.Departments(); // кафедры из БД деканат
+        //     Log.UploadDb(uploadDepartments);
 
-            // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
-            // ctx.Status("profile preparations");
-            // uploadData.ProfilePrep(); // профили подготовки из БД деканат
-        });
+        //     // загрузка спраовочников "профили подготовки" которые отсутствуют на сервере ELMA
+        //     // ctx.Status("profile preparations");
+        //     // uploadData.ProfilePrep(); // профили подготовки из БД деканат
+        // });
 
         // * раздел для выгрузки данных из Статичных файлов в директории STATIC в Elma
         // спинер Информирующий о Стутесе Процесса Программы
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.BouncingBar)
-            .SpinnerStyle(Style.Parse("green1"))
-            .Start("[white]Process uploding from static files[/]", ctx => 
-        {
-            // // выгрузка пользователей которые ОТСУТСТВУЮТ на сервере elma, справочник User
-            // ctx.Status("add new users");
-            // uploadExcel.addUsers(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"), baseHttp);
+        // AnsiConsole.Status()
+        //     .Spinner(Spinner.Known.BouncingBar)
+        //     .SpinnerStyle(Style.Parse("green1"))
+        //     .Start("[white]Process uploding from static files[/]", ctx => 
+        // {
+        //     // // выгрузка пользователей которые ОТСУТСТВУЮТ на сервере elma, справочник User
+        //     // ctx.Status("add new users");
+        //     // uploadExcel.addUsers(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"), baseHttp);
 
-            // // обновление учёных званий для системного справочника elma -> пользователь (user)
-            // ctx.Status("academic titles");
-            // uploadExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
-        });
+        //     // // обновление учёных званий для системного справочника elma -> пользователь (user)
+        //     // ctx.Status("academic titles");
+        //     // uploadExcel.academicTitle(Path.Combine(Environment.CurrentDirectory, "static", "ППС.xlsx"));
+        // });
 
         // * раздел доп. возможностей (операций) elma
         // спинер Информирующий о Стутесе Процесса Программы
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.BouncingBar)
-            .SpinnerStyle(Style.Parse("green1"))
-            .Start("[white]additional operations in elma (possibilities)[/]", ctx =>
+        // AnsiConsole.Status()
+        //     .Spinner(Spinner.Known.BouncingBar)
+        //     .SpinnerStyle(Style.Parse("green1"))
+        //     .Start("[white]additional operations in elma (possibilities)[/]", ctx =>
+        // {
+        //     // Удаление групп у которых нет студентов
+        //     ctx.Status("deleting groups without students");
+        //     possiElma.deleteGroupsWithoutStudents();
+
+        //     // обновление объекта-справочника elma "Приложение 3 к договору на практику"
+        //     // т.е. добавит Приложение 3 для студентов у которых их нет или которые отсутствуют
+        //     // хотя для группы в которой находится студент есть Приктики
+        //     ctx.Status("updating appendix Three for document of the practice"); 
+        //     possiElma.Update_appendixes_three("", ctx);
+        // });
+
+
+
+
+        var elmaClient = await new ElmaClient(token, hostaddress, username, password).GetAuthorization();
+
+        var result = await elmaClient.QueryEntity(
+            type: TypesUidElma.eduPlans, 
+            queryParams: new Dictionary<string, string>() {
+                ["q"] = "Naimenovanie LIKE '1%'"
+            });
+
+        System.Console.WriteLine(result.Count);
+
+        var result3 = await elmaClient.InsertEntity(
+                TypesUidElma.eduPlans,
+                new Data()
+                {
+                    Items = new List<Item>() {
+                        new Item() { Name = "Naimenovanie", Value = "name test name" },
+                        new Item() { Name = "SsylkaNaUchebnyyPlan", Value = "value test value" },
+                    }
+                });
+
+
+        Console.WriteLine(result3);
+
+        var data = new Data()
         {
-            // Удаление групп у которых нет студентов
-            ctx.Status("deleting groups without students");
-            possiElma.deleteGroupsWithoutStudents();
+            Items = new List<Item>() {
+                new Item() { Name = "Naimenovanie", Value = "updating name test"}
+            }
+        };
 
-            // обновление объекта-справочника elma "Приложение 3 к договору на практику"
-            // т.е. добавит Приложение 3 для студентов у которых их нет или которые отсутствуют
-            // хотя для группы в которой находится студент есть Приктики
-            ctx.Status("updating appendix Three for document of the practice"); 
-            possiElma.Update_appendixes_three("", ctx);
-        });
+        var result4 = await elmaClient.UpdateEntity(TypesUidElma.eduPlans, result3, data);
+
+        System.Console.WriteLine("updated entity with id: " + result4);
 
 
-        // System.Console.WriteLine(
-        //     JsonConvert.SerializeObject(elmaApi.StartableProcessesFromExternalApps())
-        // );
+        Console.WriteLine(await elmaClient.TypesEntity());
+
+
+
 
     }
 }

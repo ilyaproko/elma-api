@@ -2,7 +2,7 @@
 
 namespace ELMA_API;
 
-// ! Main Structure of Elma Object in Server ! // // // // // // // // // // // // // // // // // // // //
+// ! Main Structure of Elma Entity in Server ! // // // // // // // // // // // // // // // // // // // //
 public class Data
 {
     public List<Item> Items { get; set; }
@@ -15,6 +15,11 @@ public class Item
     public List<Data> DataArray { get; set; }
     public string Name { get; set; }
     public string Value { get; set; }
+
+    public static implicit operator List<object>(Item v)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class Root
