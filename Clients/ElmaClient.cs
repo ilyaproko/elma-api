@@ -6,6 +6,7 @@ using System.Web;
 using ELMA_API;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using TypesElma;
 
 namespace Client;
 
@@ -80,7 +81,7 @@ public class ElmaClient
     /// <param name="type">уникльный идентификтор типа сущности elma</param>
     /// <param name="queryParams">дополнительные паретры запроса. Например можно передать q т.е. EQL 
     /// (Elma Query Language) чтобы произвести выборка сущностей на стороне сервера</param>
-    public async Task<List<Root>> QueryEntity(string type, QParams queryParams = null)
+    public async Task<List<WebData>> QueryEntity(string type, QParams queryParams = null)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity); 
@@ -99,7 +100,7 @@ public class ElmaClient
         var request = new HttpRequestMessage(HttpMethod.Get, UrlEntityQueryTree + $"?{query.ToString()}");
         var response = await _httpClient.SendAsync(request);
         
-        return await response.Content.ReadFromJsonAsync<List<Root>>();
+        return await response.Content.ReadFromJsonAsync<List<WebData>>();
     }
 
     /// <summary> get number of entities via unique type identifier </summary>
@@ -333,6 +334,17 @@ public class QParams
     public QParams Select(string value)
     {
         this.Add("select", value);
+        return this;
+    }
+
+    /// <summary>
+    /// Значения полей для фильтра сущности в формате: Property1:Значение1,Property2:Значение2
+    /// Наименование свойства возможно задавать с точкой (.) для получения доступа к подсвойству: Property1.Property2:Значение1
+    /// Для указания в значении свойства символа : (двоеточие), \ (обратный слэш) или , (запятая), его нужно экранировать черз \ (обратный слэш)
+    /// </summary>
+    public QParams Filter(string value)
+    {
+        this.Add("filter", value);
         return this;
     }
 }

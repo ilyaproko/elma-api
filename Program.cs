@@ -135,15 +135,17 @@ class Program
         var elmaClient = await new ElmaClient(token, hostaddress, username, password).Build();
 
         var result = await elmaClient.QueryEntity(type: "Praktiki", 
-            new QParams().Limit(2).Offset(1).Select("UchebnyyPlan/*"));
+            new QParams().Select("UchebnyyPlan/*,Kurs").Filter("Kurs:2")); // или можно так .Eql("Kurs = 2")
+
+        // foreach (var item in result)
+        // {
+        //     System.Console.WriteLine(JsonConvert.SerializeObject(item));
+        // }
 
         System.Console.WriteLine(result.Count);
 
-        foreach (var item in result)
-        {
-            System.Console.WriteLine(JsonConvert.SerializeObject(item));
-        }
 
+       
         // var result3 = await elmaClient.InsertEntity("UchebnyePlany",
         //     new Data()
         //     {
