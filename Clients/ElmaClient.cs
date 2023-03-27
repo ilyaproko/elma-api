@@ -21,7 +21,7 @@ public class ElmaClient
     // url to get authorization token from elma server for requests
     private readonly string UrlAuthorization = "/API/REST/Authorization/LoginWith";
     // url to get entities from elma server
-    private readonly string UrlEntityQuery = "/API/REST/Entity/Query";
+    private readonly string UrlEntityQueryTree = "/API/REST/Entity/QueryTree";
     // example insert full url /API/REST/Entity/Insert/<TYPEUID_ELMA_ENTITY>
     // after /Insert/ should be typeuid which need to insert to server elma
     private readonly string UrlEntityInsert = "/API/REST/Entity/Insert/";
@@ -77,23 +77,26 @@ public class ElmaClient
     /// <summary>
     /// получение сущностей (объект-справочник) от сервера elma
     /// </summary>
-    /// <param name="typeObj">уникльный идентификтор типа сущности elma</param>
+    /// <param name="type">уникльный идентификтор типа сущности elma</param>
     /// <param name="queryParams">дополнительные паретры запроса. Например можно передать q т.е. EQL 
     /// (Elma Query Language) чтобы произвести выборка сущностей на стороне сервера</param>
-    public async Task<List<Root>> QueryEntity(TypeObj typeObj, Dictionary<string, string> queryParams = null)
+    public async Task<List<Root>> QueryEntity(string type, QParams queryParams = null)
     {
+        // получаем тип обьекта по его наименованию и его TypeUID для запросов
+        var getTypeObj = this.GetTypeObj(type, TypesObj.Entity); 
+
         var query = HttpUtility.ParseQueryString(string.Empty);
-        query["type"] = typeObj.Uid;
+        query["type"] = getTypeObj.Uid; // it's the most important parameter, without that won't work
 
         if (queryParams != null)
         {
-            foreach (var record in queryParams)
+            foreach (var record in queryParams.Params)
             {
                 query[record.Key] = record.Value;
             }
         }
         
-        var request = new HttpRequestMessage(HttpMethod.Get, UrlEntityQuery + $"?{query.ToString()}");
+        var request = new HttpRequestMessage(HttpMethod.Get, UrlEntityQueryTree + $"?{query.ToString()}");
         var response = await _httpClient.SendAsync(request);
         
         return await response.Content.ReadFromJsonAsync<List<Root>>();
@@ -102,9 +105,12 @@ public class ElmaClient
     /// <summary> get number of entities via unique type identifier </summary>
     /// <param name="typeObj">unique object's type identifier</param>
     /// <returns>number of entities via unique type identifier</returns>
-    public async Task<int> CountEntity(TypeObj typeObj)
+    public async Task<int> CountEntity(string type)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, UrlEntityCount + $"?type={typeObj.Uid}");
+        // получаем тип обьекта по его наименованию и его TypeUID для запросов
+        var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
+
+        var request = new HttpRequestMessage(HttpMethod.Get, UrlEntityCount + $"?type={getTypeObj.Uid}");
         var response = await _httpClient.SendAsync(request);
         return int.Parse(await response.Content.ReadAsStringAsync());
     }
@@ -113,9 +119,12 @@ public class ElmaClient
     /// <param name="typeObj">unique object's type identifier</param>
     /// <param name="data">data which will be inserted to server elma</param>
     /// <returns>id the new entity which was inserted</returns>
-    public async Task<int> InsertEntity(TypeObj typeObj, Data data)
+    public async Task<int> InsertEntity(string type, Data data)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, UrlEntityInsert + typeObj.Uid);
+        // получаем тип обьекта по его наименованию и его TypeUID для запросов
+        var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, UrlEntityInsert + getTypeObj.Uid);
         
         request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
 
@@ -135,9 +144,12 @@ public class ElmaClient
     /// <param name="id">entity's id which will be updated</param>
     /// <param name="data">new data for uploading for entity via id</param>
     /// <returns></returns>
-    public async Task<int> UpdateEntity(TypeObj typeObj, int id, Data data)
+    public async Task<int> UpdateEntity(string type, int id, Data data)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, String.Format(UrlEntiityUpdate, typeObj.Uid, id));
+        // получаем тип обьекта по его наименованию и его TypeUID для запросов
+        var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, String.Format(UrlEntiityUpdate, getTypeObj.Uid, id));
         
         request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
 
@@ -275,4 +287,52 @@ public enum TypesObj
 {
     Process, 
     Entity
+}
+
+public class QParams
+{
+    public Dictionary<string, string> Params = new Dictionary<string, string>();
+    public QParams() { }
+    /// <summary> add new url parameters in storage </summary>
+    public QParams Add(string key, string value)
+    {
+        if (String.IsNullOrEmpty(key) || String.IsNullOrEmpty(value)) {
+            throw new Exception($"Url parameters can't be null or empty string: key: \"{key}\", value: \"{value}\"");
+        }
+        Params.Add(key, value);
+        return this;
+    }
+    /// <summary> create url parameter for Eql (elma query lanaguage) for difficult query to Elma</summary>
+    public QParams Eql(string value)
+    {
+        this.Add("q", value);
+        return this;
+    }
+    /// <summary> specify how many objects need to get </summary>
+    public QParams Limit(int value)
+    {
+        this.Add("limit", value.ToString());
+        return this;
+    }
+    /// <summary> specify the start element </summary>
+    public QParams Offset(int value)
+    {
+        this.Add("offset", value.ToString());
+        return this;
+    }
+    /// <summary> 
+    /// необходимо передавать строку выборки свойств и вложенных объектов.
+    /// * - универсальная подстановка для выбора всех свойств объекта на один уровень вложенности
+    /// / - разделитель уровней вложенности свойств объекта
+    /// , - объединяет результаты нескольких запросов
+    /// Subject,Comments/* – для типа объекта Задача требуется выбрать свойство Тема и для всех объектов в свойстве Комментарии выбрать все их доступные свойства;
+    /// Subject, Description, CreationAuthor/UserName, CreationAuthor/FullName - для типа объекта Задача
+    /// требуется выбрать только свойства Тема, Описание и для свойства Автор (тип объекта Пользователь)
+    /// выбрать свойства Логин и Полное имя;
+    /// </summary>
+    public QParams Select(string value)
+    {
+        this.Add("select", value);
+        return this;
+    }
 }

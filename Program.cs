@@ -134,42 +134,40 @@ class Program
 
         var elmaClient = await new ElmaClient(token, hostaddress, username, password).Build();
 
-        var result = await elmaClient.QueryEntity(
-            elmaClient.GetTypeObj("UchebnyePlany"),
-            queryParams: new Dictionary<string, string>() {
-                ["q"] = "Naimenovanie LIKE '1%'"
-            });
+        var result = await elmaClient.QueryEntity(type: "Praktiki", 
+            new QParams().Limit(2).Offset(1).Select("UchebnyyPlan/*"));
 
         System.Console.WriteLine(result.Count);
 
-        var result3 = await elmaClient.InsertEntity(
-            elmaClient.GetTypeObj("UchebnyePlany"),
-            new Data()
-            {
-                Items = new List<Item>() {
-                    new Item() { Name = "Naimenovanie", Value = "name test name" },
-                    new Item() { Name = "SsylkaNaUchebnyyPlan", Value = "value test value" },
-                }
-            });
-
-
-        Console.WriteLine(result3);
-
-        var data = new Data()
+        foreach (var item in result)
         {
-            Items = new List<Item>() {
-                new Item() { Name = "Naimenovanie", Value = "updating name test"}
-            }
-        };
+            System.Console.WriteLine(JsonConvert.SerializeObject(item));
+        }
 
-        var result4 = await elmaClient.UpdateEntity(
-            elmaClient.GetTypeObj("UchebnyePlany"), 
-            id: result3, 
-            data);
+        // var result3 = await elmaClient.InsertEntity("UchebnyePlany",
+        //     new Data()
+        //     {
+        //         Items = new List<Item>() {
+        //             new Item() { Name = "Naimenovanie", Value = "name test name" },
+        //             new Item() { Name = "SsylkaNaUchebnyyPlan", Value = "value test value" },
+        //         }
+        //     });
 
-        System.Console.WriteLine("updated entity with id: " + result4);
 
-        elmaClient.GetTypeObj("Praktiki");
+        // Console.WriteLine(result3);
+
+        // var data = new Data()
+        // {
+        //     Items = new List<Item>() {
+        //         new Item() { Name = "Naimenovanie", Value = "updating name test"}
+        //     }
+        // };
+
+        // var result4 = await elmaClient.UpdateEntity("UchebnyePlany",
+        //     id: result3, 
+        //     data);
+
+        // System.Console.WriteLine("updated entity with id: " + result4);
 
 
 
