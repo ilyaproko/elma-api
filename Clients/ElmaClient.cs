@@ -23,6 +23,8 @@ public class ElmaClient
     private readonly string UrlAuthorization = "/API/REST/Authorization/LoginWith";
     // url to get entities from elma server
     private readonly string UrlEntityQueryTree = "/API/REST/Entity/QueryTree";
+    // url to get a certain one entity using TypeUID and its id
+    private readonly string UrlEntityLoadTree = "/API/REST/Entity/LoadTree";
     // example insert full url /API/REST/Entity/Insert/<TYPEUID_ELMA_ENTITY>
     // after /Insert/ should be typeuid which need to insert to server elma
     private readonly string UrlEntityInsert = "/API/REST/Entity/Insert/";
@@ -79,12 +81,23 @@ public class ElmaClient
     /// получение сущностей (объект-справочник) от сервера elma
     /// </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
-    public PrepareHttpRequestElma QueryEntity(string type) // QParams queryParams = null
+    public PrepareHttpRequestElma<List<WebData>> QueryEntity(string type) // QParams queryParams = null
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        return new PrepareHttpRequestElma(_httpClient, getTypeObj.Uid, UrlEntityQueryTree, HttpMethod.Get);
+        return new PrepareHttpRequestElma<List<WebData>>(_httpClient, getTypeObj.Uid, UrlEntityQueryTree, HttpMethod.Get);
+    }
+
+    /// <summary>
+    /// get a certain entity by Its id
+    /// </summary>
+    public PrepareHttpRequestElma<WebData> LoadEntity(string type, int id)
+    {
+        // получаем тип обьекта по его наименованию и его TypeUID для запросов
+        var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
+
+        return new PrepareHttpRequestElma<WebData>(_httpClient, getTypeObj.Uid, UrlEntityLoadTree, HttpMethod.Get).Id(id);
     }
 
     /// <summary>
@@ -256,6 +269,48 @@ public class ElmaClient
                 + $"to the server, access to the one");
         }
         return tryFind;
+    }
+
+    /// <summary>
+    /// method for comfortable get needed data from List of Items 
+    /// if pass nestedNameItem that mean that main Object has dependency
+    /// that It has pair Name/Value that we want to get
+    /// </summary>
+    /// <param name="items">Список Item</param>
+    /// <param name="nameItem">
+    /// Принимает наименование Item или если это вложенный Item (т.е. зависимость)
+    /// указывается наименование данной зависимости и обезательно параметр nestedItemName
+    /// который и будет вытаскивать необходимый Item в этой вложенной завимимости
+    /// </param>
+    /// <param name="nestedItemName"></param>
+    /// <returns>
+    /// При условии что наименование Item указано правильно вернет значение 
+    /// данного Item или если не найдет тогда null
+    /// </returns>
+    static public string getValueItem(
+        List<WebDataItem> items,
+        string nameItem,
+        string nestedItemName = null)
+    {
+        foreach (var item in items)
+        {
+            // if nestedNameItem wasn't passed in 
+            if (nestedItemName == null)
+            { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
+                if (item.Name == nameItem) return item.Value; // RETURN !!!
+            }
+            else
+            {
+                if (item.Name == nameItem && item.Data != null)
+                { // GET OBJECT DATA WITH ITEMS WHICH IS QUALS nameItem
+                    foreach (var itemNested in item.Data.Items)
+                    { // HAS NESTED DEPENDENCY
+                        if (itemNested.Name == nestedItemName) return itemNested.Value; // RETURN !!!
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

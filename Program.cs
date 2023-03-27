@@ -138,16 +138,19 @@ class Program
         // var result = await elmaClient.QueryEntity(type: "Praktiki", 
         //     new QParams().Select("UchebnyyPlan/*,Kurs").Filter("Kurs:2")); // или можно так .Eql("Kurs = 2")
 
-        var result2 = await elmaClient.QueryEntity("Praktiki").Eql("Semestr = 2").Limit(1000).Offset(50)
-            .Select("UchebnyyPlan,Kurs,Semestr").Filter("Kurs:2").Execute();
+        var result2 = await elmaClient.QueryEntity("Praktiki").Limit(100).Offset(50)
+            .Select("UchebnyyPlan,Kurs,Semestr").Filter("Kurs:5").Execute();
 
-        
+        var result3 = await elmaClient.LoadEntity("Praktiki", 4508).Select("Kurs").Execute();
 
 
-        foreach (var item in result2)
-        {
-            System.Console.WriteLine(JsonConvert.SerializeObject(item));
-        }
+        System.Console.WriteLine(JsonConvert.SerializeObject(result3));
+
+
+        // foreach (var item in result2)
+        // {
+        //     System.Console.WriteLine(JsonConvert.SerializeObject(item));
+        // }
 
         System.Console.WriteLine(result2.Count);
 

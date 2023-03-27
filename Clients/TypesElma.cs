@@ -1,6 +1,10 @@
 using System.Web;
 using System.Collections.Specialized;
 using System.Net.Http.Json;
+using System.Text;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using Client;
 
 namespace TypesElma;
 
@@ -40,10 +44,10 @@ public enum TypesObj
 /// <summary>
 /// CRTP (Curiously recurring template pattern) Применение паттерна CRTP в C#
 /// </summary>
-public class QParams<T> where T : QParams<T>
+public class QParamsBase<T> where T : QParamsBase<T>
 {
     public Dictionary<string, string> Params = new Dictionary<string, string>();
-    public QParams() { }
+    public QParamsBase() { }
     /// <summary> add new url parameters in storage </summary>
     public T Add(string key, string value)
     {
@@ -103,22 +107,40 @@ public class QParams<T> where T : QParams<T>
         this.Add("filter", value);
         return (T)this;
     }
+
+    /// <summary> search by a certain id </summary>
+    public T Id(int id) 
+    {
+        this.Add("id", id.ToString());
+        return (T)this;
+    }
+
+    /// <summary> сортировка по указанному свойству объекта </summary>
+    public T Sort(string value) 
+    {
+        this.Add("sort", value);
+        return (T)this;
+    }
 }
 
-public class PrepareHttpRequestElma : QParams<PrepareHttpRequestElma>
+/// <summary>
+/// CRTP (Curiously recurring template pattern) Применение паттерна CRTP в C#
+/// joind with QParams (Url query parameters for ElmaServer)
+/// </summary>
+public class PrepareHttpRequestElma<T> : QParamsBase<PrepareHttpRequestElma<T>>
 {
     private HttpClient _httpClient;
     private NameValueCollection queryParamsUrl = HttpUtility.ParseQueryString(string.Empty);
     private string pathUrl;
     HttpMethod httpMethod;
-    public PrepareHttpRequestElma(HttpClient httpClient, string type, string pathUrl, HttpMethod httpMethod) : base()
+    public PrepareHttpRequestElma(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod) : base()
     {
         this._httpClient = httpClient;
         this.pathUrl = pathUrl;
         this.httpMethod = httpMethod;
-        this.TypeUid(type); // it's the most important parameter, without that won't work
+        this.TypeUid(typeUid); // it's the most important parameter, without that won't work
     }
-    public async Task<List<WebData>> Execute()
+    public async Task<T> Execute()
     {
         if (this.Params.Count != 0)
         {
@@ -133,6 +155,83 @@ public class PrepareHttpRequestElma : QParams<PrepareHttpRequestElma>
         
         var response = await _httpClient.SendAsync(request);
         
-        return await response.Content.ReadFromJsonAsync<List<WebData>>();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+}
+
+public class PrepareHttpInsert
+{
+    private HttpClient _httpClient;
+    private string pathUrl;
+    HttpMethod httpMethod;
+    public WebData webData = null;
+    public PrepareHttpInsert(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod)
+    {
+        this._httpClient = httpClient;
+        this.pathUrl = pathUrl;
+        this.httpMethod = httpMethod;
+    }
+
+    public async Task<int> Execute()
+    {
+        // if data wasn't provided then throw an exception
+        if (webData == null) throw new Exception("Field webData is null. Need data to upload to server");
+
+        var request = new HttpRequestMessage(httpMethod, pathUrl);
+
+        request.Content = new StringContent(JsonConvert.SerializeObject(webData), Encoding.UTF8, "application/json");
+
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
+        {
+            CharSet = "utf-8"
+        };
+        
+        var response = await _httpClient.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        return int.Parse(body.Replace("\"", String.Empty));
+    }
+
+    public PrepareHttpInsert WebItem(string name, string value)
+    {
+        this.webData ??= new WebData();
+
+        this.webData.Items.Add(
+            new WebDataItem { Name = name, Value = value}
+        );
+
+        return this;
+    }
+
+    public PrepareHttpInsert WebItem(string nameObject, string nameItem, string value) 
+    {
+        this.webData ??= new WebData();
+
+        var tryFindDependency = this.webData.Items.FirstOrDefault(item => 
+            item.Name == nameObject);
+
+        // if didn't create before, then create new
+        if (tryFindDependency == null)
+        {
+            this.webData.Items.Add(
+                new WebDataItem {
+                    Name = nameObject,
+                    Data = new WebData {
+                        Items = new List<WebDataItem>() {
+                            new WebDataItem { Name = nameItem, Value = value}
+                        }
+                    }
+                }
+            );
+        }
+        else 
+        {
+            tryFindDependency.Data.Items.Add(
+                new WebDataItem { Name = nameItem, Value = value }
+            );
+        }
+
+
+        return this;
     }
 }
