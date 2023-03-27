@@ -15,6 +15,7 @@ using Spectre.Console;
 using Client;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using TypesElma;
 
 namespace ELMA_API;
 class Program
@@ -134,18 +135,24 @@ class Program
 
         var elmaClient = await new ElmaClient(token, hostaddress, username, password).Build();
 
-        var result = await elmaClient.QueryEntity(type: "Praktiki", 
-            new QParams().Select("UchebnyyPlan/*,Kurs").Filter("Kurs:2")); // или можно так .Eql("Kurs = 2")
+        // var result = await elmaClient.QueryEntity(type: "Praktiki", 
+        //     new QParams().Select("UchebnyyPlan/*,Kurs").Filter("Kurs:2")); // или можно так .Eql("Kurs = 2")
 
-        // foreach (var item in result)
-        // {
-        //     System.Console.WriteLine(JsonConvert.SerializeObject(item));
-        // }
+        var result2 = await elmaClient.QueryEntity("Praktiki").Eql("Semestr = 2").Limit(1000).Offset(50)
+            .Select("UchebnyyPlan,Kurs,Semestr").Filter("Kurs:2").Execute();
 
-        System.Console.WriteLine(result.Count);
+        
 
 
-       
+        foreach (var item in result2)
+        {
+            System.Console.WriteLine(JsonConvert.SerializeObject(item));
+        }
+
+        System.Console.WriteLine(result2.Count);
+
+
+
         // var result3 = await elmaClient.InsertEntity("UchebnyePlany",
         //     new Data()
         //     {
