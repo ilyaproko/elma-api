@@ -240,11 +240,11 @@ public class PrepareHttpLoad<T> : PrepareHttpBase<T>
     }
 }
 
-public class PrepareHttpInsert : PrepareHttpBase<int>
+public class PrepareHttpInsertOrUpdate : PrepareHttpBase<int>
 {
     public WebData webData = null;
     public TypeObj typeObj;
-    public PrepareHttpInsert(HttpClient httpClient, TypeObj typeObj, string pathUrl, HttpMethod httpMethod)
+    public PrepareHttpInsertOrUpdate(HttpClient httpClient, TypeObj typeObj, string pathUrl, HttpMethod httpMethod)
         : base(httpClient, typeObj.Uid, pathUrl, httpMethod) 
     {
         this.typeObj = typeObj;
@@ -255,7 +255,7 @@ public class PrepareHttpInsert : PrepareHttpBase<int>
         // if data wasn't provided then throw an exception
         if (webData == null) throw new Exception("Field webData is null. Need data to upload to server");
 
-        var request = new HttpRequestMessage(httpMethod, pathUrl + typeObj.Uid);
+        var request = new HttpRequestMessage(httpMethod, pathUrl);
 
         request.Content = new StringContent(JsonConvert.SerializeObject(webData), Encoding.UTF8, "application/json");
 
@@ -275,7 +275,7 @@ public class PrepareHttpInsert : PrepareHttpBase<int>
     /// тогда заменит значение в данном WebItem с названием name. Перед созданием происходит проверка
     /// названия WebItem name, есть ли похожее поле в Объекте Elma, если нет тогда выбросит ошибку
     /// </summary>
-    public PrepareHttpInsert WebItem(string name, string value)
+    public PrepareHttpInsertOrUpdate WebItem(string name, string value)
     {
         // check if the name exists for certain object elma which the WebItem creating
         // if the Name Of creating Item don't specified then throw Exception
@@ -306,7 +306,7 @@ public class PrepareHttpInsert : PrepareHttpBase<int>
     /// уже вложенных WebItem если будет совпадение по названию nameItem. Перед созданием происходит проверка
     /// названия WebItem name, есть ли похожее поле в Объекте Elma, если нет тогда выбросит ошибку
     /// </summary>
-    public PrepareHttpInsert WebItem(string nameObject, string nameItem, string value) 
+    public PrepareHttpInsertOrUpdate WebItem(string nameObject, string nameItem, string value) 
     {
         // check if the name exists for certain object elma which the WebItem creating
         // if the Name Of creating Item don't specified then throw Exception

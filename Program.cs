@@ -149,12 +149,21 @@ class Program
         result4.WebItem("Kurs", "10");
 
         var injectNewObj = await result4.Execute();
+        System.Console.WriteLine("new: " + injectNewObj);
+
+        var result5 = elmaClient.UpdateEntity("Praktiki", injectNewObj);
+        result5.WebItem("Semestr", "1000");
+        result5.WebItem("Disciplina", "Id", "995");
+
+        var updatedObj = await result5.Execute();
+        System.Console.WriteLine("updated: " + updatedObj);
+
 
         // System.Console.WriteLine(JsonConvert.SerializeObject(result2));
         // System.Console.WriteLine(injectNewObj);
         // System.Console.WriteLine(JsonConvert.SerializeObject(result4.webData));
 
-        
+
 
 
         // var data = new Data()

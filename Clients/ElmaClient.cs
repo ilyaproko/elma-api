@@ -102,9 +102,7 @@ public class ElmaClient
         _httpClient.DefaultRequestHeaders.Add("SessionToken", AuthorizationData.SessionToken);
     }
 
-    /// <summary>
-    /// получение сущностей (объект-справочник) от сервера elma
-    /// </summary>
+    /// <summary> получение сущностей (объект-справочник) от сервера elma </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
     public PrepareHttpQuery<List<WebData>> QueryEntity(string type) // QParams queryParams = null
     {
@@ -114,9 +112,9 @@ public class ElmaClient
         return new PrepareHttpQuery<List<WebData>>(_httpClient, getTypeObj.Uid, UrlEntityQueryTree, HttpMethod.Get);
     }
 
-    /// <summary>
-    /// get a certain entity by Its id
-    /// </summary>
+    /// <summary> get a certain entity by Its id </summary>
+    /// <param name="type">имя униклього идентификтора типа сущности elma</param>
+    /// <param name="id">entity's id which will be updated</param>
     public PrepareHttpLoad<WebData> LoadEntity(string type, int id)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
@@ -125,9 +123,7 @@ public class ElmaClient
         return new PrepareHttpLoad<WebData>(_httpClient, getTypeObj.Uid, UrlEntityLoadTree, HttpMethod.Get, id);
     }
 
-    /// <summary>
-    /// Count all entities elma by name of type
-    /// </summary>
+    /// <summary> Count all entities elma by name of type </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
     public async Task<int> CountEntity(string type)
     {
@@ -141,37 +137,31 @@ public class ElmaClient
 
     /// <summary> inserted new entity to server elma </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
-    public PrepareHttpInsert InsertEntity(string type)
+    public PrepareHttpInsertOrUpdate InsertEntity(string type)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        return new PrepareHttpInsert(_httpClient, getTypeObj, UrlEntityInsert, HttpMethod.Post);
+        return new PrepareHttpInsertOrUpdate(
+            _httpClient, 
+            getTypeObj, 
+            UrlEntityInsert + getTypeObj.Uid, 
+            HttpMethod.Post);
     }
 
     /// <summary> update entity via id with new data </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
     /// <param name="id">entity's id which will be updated</param>
-    /// <param name="data">new data for uploading for entity via id</param>
-    /// <returns></returns>
-    public async Task<int> UpdateEntity(string type, int id, Data data)
+    public PrepareHttpInsertOrUpdate UpdateEntity(string type, int id)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, String.Format(UrlEntiityUpdate, getTypeObj.Uid, id));
-        
-        request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
-        {
-            CharSet = "utf-8"
-        };
-        
-        var response = await _httpClient.SendAsync(request);
-        var body = await response.Content.ReadAsStringAsync();
-
-        return int.Parse(body.Replace("\"", string.Empty));
+        return new PrepareHttpInsertOrUpdate(
+            _httpClient, 
+            getTypeObj, 
+            String.Format(UrlEntiityUpdate, getTypeObj.Uid, id),
+            HttpMethod.Post);
     }
 
     /// <summary>
