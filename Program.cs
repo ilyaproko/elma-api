@@ -139,23 +139,20 @@ class Program
         var result2 = await elmaClient.QueryEntity("Praktiki").Limit(10).Offset(50)
             .Select("UchebnyyPlan,Kurs,Semestr").Filter("Kurs:2").Eql("Semestr = 2").Execute(); // или можно так Semestr = 2 AND Kurs = 2
         
-        var result3 = await elmaClient.LoadEntity("Praktiki", 4508).Select("Kurs").Execute();
+        var result3 = await elmaClient.LoadEntity("Praktiki", id: 4508).Select("Kurs").Execute();
 
+        var result4 = elmaClient.InsertEntity("UchebnyePlany")
+            .WebItem("Naimenovanie", "testName")
+            .WebItem("SsylkaNaUchebnyyPlan", "testURL.ru")
+            .WebItem("Naimenovanie", "testNameTWOTWO")
+            .WebItem("CheckObject", "Name", "nameTest")
+            .WebItem("CheckObject", "Money", "500")
+            .WebItem("CheckObject", "Money", "111111111111");
 
-        System.Console.WriteLine(result2.Count);
+        // System.Console.WriteLine(JsonConvert.SerializeObject(result4.webData));
 
+        
 
-        // var result3 = await elmaClient.InsertEntity("UchebnyePlany",
-        //     new Data()
-        //     {
-        //         Items = new List<Item>() {
-        //             new Item() { Name = "Naimenovanie", Value = "name test name" },
-        //             new Item() { Name = "SsylkaNaUchebnyyPlan", Value = "value test value" },
-        //         }
-        //     });
-
-
-        // Console.WriteLine(result3);
 
         // var data = new Data()
         // {

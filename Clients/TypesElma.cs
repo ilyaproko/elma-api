@@ -21,7 +21,6 @@ public class WebDataItem
     public List<WebData> DataArray { get; set; }
     public string Name { get; set; }
     public string Value { get; set; }
-
 }
 // * ///////////////////////////////////////////// Main Response with Entities
 
@@ -34,6 +33,7 @@ public class TypeObj
     /// <summary> уникальный идентификатор типа </summary>
     public string Uid { get; set; } 
     public string NameDesc { get; set; }
+    public List<string> NamesFields { get; set; }
 }
 public enum TypesObj 
 {
@@ -120,11 +120,16 @@ public class QParamsBase
     }
 }
 
-public class PrepareHttpBase<T> : QParamsBase
+interface IPrepareHttpBase<T>
 {
-    protected  HttpClient _httpClient;
-    protected  NameValueCollection queryParamsUrl = HttpUtility.ParseQueryString(string.Empty);
-    protected  string pathUrl;
+    public Task<T> Execute();
+}
+
+public class PrepareHttpBase<T> : QParamsBase, IPrepareHttpBase<T> 
+{
+    protected HttpClient _httpClient;
+    protected NameValueCollection queryParamsUrl = HttpUtility.ParseQueryString(string.Empty);
+    protected string pathUrl;
     protected HttpMethod httpMethod;
     public PrepareHttpBase(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod) : base()
     {
@@ -151,7 +156,6 @@ public class PrepareHttpBase<T> : QParamsBase
             pathUrl + (queryParamsUrl.Count != 0 ? $"?{queryParamsUrl.ToString()}" : ""));
 
         var response = await _httpClient.SendAsync(request);
-        System.Console.WriteLine(request.RequestUri);
 
         return await response.Content.ReadFromJsonAsync<T>();
     }
@@ -236,72 +240,79 @@ public class PrepareHttpLoad<T> : PrepareHttpBase<T>
     }
 }
 
-// public class PrepareHttpInsert<T> : PrepareHttpBase<T>
-// {
-//     public WebData webData = null;
-//     public PrepareHttpInsert(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod)
-//         : base(httpClient, typeUid, pathUrl, httpMethod) { }
+public class PrepareHttpInsert : PrepareHttpBase<int>
+{
+    public WebData webData = null;
+    public PrepareHttpInsert(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod)
+        : base(httpClient, typeUid, pathUrl, httpMethod) { }
 
-//     public async Task<int> Execute()
-//     {
-//         // if data wasn't provided then throw an exception
-//         if (webData == null) throw new Exception("Field webData is null. Need data to upload to server");
+    public async new Task<int> Execute()
+    {
+        // if data wasn't provided then throw an exception
+        if (webData == null) throw new Exception("Field webData is null. Need data to upload to server");
 
-//         var request = new HttpRequestMessage(httpMethod, pathUrl);
+        var request = new HttpRequestMessage(httpMethod, pathUrl);
 
-//         request.Content = new StringContent(JsonConvert.SerializeObject(webData), Encoding.UTF8, "application/json");
+        request.Content = new StringContent(JsonConvert.SerializeObject(webData), Encoding.UTF8, "application/json");
 
-//         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
-//         {
-//             CharSet = "utf-8"
-//         };
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
+        {
+            CharSet = "utf-8"
+        };
         
-//         var response = await _httpClient.SendAsync(request);
-//         var body = await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
 
-//         return int.Parse(body.Replace("\"", String.Empty));
-//     }
+        return int.Parse(body.Replace("\"", String.Empty));
+    }
 
-//     public PrepareHttpInsert<T> WebItem(string name, string value)
-//     {
-//         this.webData ??= new WebData();
+    public PrepareHttpInsert WebItem(string name, string value)
+    {
+        this.webData ??= new WebData();
+        this.webData.Items ??= new List<WebDataItem>();
 
-//         this.webData.Items.Add(
-//             new WebDataItem { Name = name, Value = value}
-//         );
+        var tryFindItemByName = this.webData.Items.FirstOrDefault(item => item.Name == name);
 
-//         return this;
-//     }
+        if (tryFindItemByName == null)
+            this.webData.Items.Add(new WebDataItem { Name = name, Value = value });
+        else
+            tryFindItemByName.Value = value;
 
-//     public PrepareHttpInsert<T> WebItem(string nameObject, string nameItem, string value) 
-//     {
-//         this.webData ??= new WebData();
+        return this;
+    }
 
-//         var tryFindDependency = this.webData.Items.FirstOrDefault(item => 
-//             item.Name == nameObject);
+    public PrepareHttpInsert WebItem(string nameObject, string nameItem, string value) 
+    {
+        this.webData ??= new WebData();
+        this.webData.Items ??= new List<WebDataItem>();
 
-//         // if didn't create before, then create new
-//         if (tryFindDependency == null)
-//         {
-//             this.webData.Items.Add(
-//                 new WebDataItem {
-//                     Name = nameObject,
-//                     Data = new WebData {
-//                         Items = new List<WebDataItem>() {
-//                             new WebDataItem { Name = nameItem, Value = value}
-//                         }
-//                     }
-//                 }
-//             );
-//         }
-//         else 
-//         {
-//             tryFindDependency.Data.Items.Add(
-//                 new WebDataItem { Name = nameItem, Value = value }
-//             );
-//         }
+        var tryFindDependency = this.webData.Items.FirstOrDefault(item => 
+            item.Name == nameObject);
 
+        // if didn't create before, then create new
+        if (tryFindDependency == null)
+        {
+            // create new item
+            this.webData.Items.Add(
+                new WebDataItem { Name = nameObject, Data = new WebData { Items = new List<WebDataItem>() } }
+            );
+            
+            var findNewItem = this.webData.Items.First(item => item.Name == nameObject);
 
-//         return this;
-//     }
-// }
+            // add new item for referenced object
+            findNewItem.Data.Items.Add(new WebDataItem { Name = nameItem, Value = value });
+        }
+        else 
+        {
+            // check if item with 'nameItem' for referenced object has already created before 
+            var tryFindItemRefObj = tryFindDependency.Data.Items.FirstOrDefault(item => item.Name == nameItem);
+
+            if (tryFindItemRefObj == null)
+                tryFindDependency.Data.Items.Add(new WebDataItem { Name = nameItem, Value = value });
+            else
+                tryFindItemRefObj.Value = value;
+        }
+
+        return this;
+    }
+}

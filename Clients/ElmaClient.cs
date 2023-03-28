@@ -40,6 +40,8 @@ public class ElmaClient
     private readonly string UrlStarableProcessesExternalApps = "/API/REST/Workflow/StartableProcessesFromExternalApps";
     // url to html page with all elma acccessable elma entities
     private readonly string UrlPageTypes = "/API/Help/Types";
+    // url to html page with specific Object's information (also will need UrlParameter 'uid')
+    private readonly string UrlPageType = "/API/Help/Type";
 
     public ElmaClient(string elmaTokenApi, string hostaddress, string username, string password)
     {
@@ -56,7 +58,30 @@ public class ElmaClient
     {
         await GetAuthorization();
         await GetTypesUid();
+        await GetNamesItemsForObjects();
         return this;
+    }
+
+    public async Task GetNamesItemsForObjects()
+    {
+        // for all elma objects add for them fields' name for every one
+        var allObject = this.TypesUidProcesses.Concat(TypesUidEntities);
+
+        foreach (var obj in allObject)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{UrlPageType}?uid={obj.Uid}");
+
+            var response = await _httpClient.SendAsync(request);
+            var body = await response.Content.ReadAsStringAsync();
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(body);
+            
+            var nodesHtml = htmlDoc.DocumentNode.SelectNodes("//body/table/tr/td[1]")
+                .Select(node => node.InnerText.Trim()).ToList();
+
+            obj.NamesFields ??= nodesHtml;
+        }
     }
 
     /// <summary>
@@ -65,7 +90,7 @@ public class ElmaClient
     /// </summary>
     private async Task GetAuthorization()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/API/REST/Authorization/LoginWith?username={Username}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{UrlAuthorization}?username={Username}");
         request.Headers.Add("ApplicationToken", ElmaTokenApi);
         request.Content = new StringContent($"\"{Password}\"", Encoding.UTF8, "application/json");
 
@@ -116,26 +141,26 @@ public class ElmaClient
 
     /// <summary> inserted new entity to server elma </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
-    /// <param name="data">data which will be inserted to server elma</param>
-    /// <returns>id the new entity which was inserted</returns>
-    public async Task<int> InsertEntity(string type, Data data)
+    public PrepareHttpInsert InsertEntity(string type)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, UrlEntityInsert + getTypeObj.Uid);
-        
-        request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+        return new PrepareHttpInsert(_httpClient, getTypeObj.Uid, UrlEntityInsert, HttpMethod.Post);
 
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
-        {
-            CharSet = "utf-8"
-        };
-        
-        var response = await _httpClient.SendAsync(request);
-        var body = await response.Content.ReadAsStringAsync();
+        // var request = new HttpRequestMessage(HttpMethod.Post, UrlEntityInsert + getTypeObj.Uid);
 
-        return int.Parse(body.Replace("\"", String.Empty));
+        // request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
+        // request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
+        // {
+        //     CharSet = "utf-8"
+        // };
+
+        // var response = await _httpClient.SendAsync(request);
+        // var body = await response.Content.ReadAsStringAsync();
+
+        // return int.Parse(body.Replace("\"", String.Empty));
     }
 
     /// <summary> update entity via id with new data </summary>
