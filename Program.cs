@@ -137,18 +137,21 @@ class Program
 
         // для выборки массива данных с возможностями фильтрации через методы Eql или Filter
         var result2 = await elmaClient.QueryEntity("Praktiki").Limit(10).Offset(50)
-            .Select("UchebnyyPlan,Kurs,Semestr").Filter("Kurs:2").Eql("Semestr = 2").Execute(); // или можно так Semestr = 2 AND Kurs = 2
+            .Select("DataS").Filter("Kurs:2").Eql("not DataS is null").Execute(); // или можно так Semestr = 2 AND Kurs = 2
         
         var result3 = await elmaClient.LoadEntity("Praktiki", id: 4508).Select("Kurs").Execute();
 
-        var result4 = elmaClient.InsertEntity("UchebnyePlany")
-            .WebItem("Naimenovanie", "testName")
-            .WebItem("SsylkaNaUchebnyyPlan", "testURL.ru")
-            .WebItem("Naimenovanie", "testNameTWOTWO")
-            .WebItem("CheckObject", "Name", "nameTest")
-            .WebItem("CheckObject", "Money", "500")
-            .WebItem("CheckObject", "Money", "111111111111");
+        var result4 = elmaClient.InsertEntity("Praktiki");
+        result4.WebItem("Kurs", "1");
+        result4.WebItem("Semestr", "2");
+        result4.WebItem("Disciplina", "Id", "12");
+        result4.WebItem("KodKafedry", "1234567890");
+        result4.WebItem("Kurs", "10");
 
+        var injectNewObj = await result4.Execute();
+
+        // System.Console.WriteLine(JsonConvert.SerializeObject(result2));
+        // System.Console.WriteLine(injectNewObj);
         // System.Console.WriteLine(JsonConvert.SerializeObject(result4.webData));
 
         

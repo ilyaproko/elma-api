@@ -243,15 +243,19 @@ public class PrepareHttpLoad<T> : PrepareHttpBase<T>
 public class PrepareHttpInsert : PrepareHttpBase<int>
 {
     public WebData webData = null;
-    public PrepareHttpInsert(HttpClient httpClient, string typeUid, string pathUrl, HttpMethod httpMethod)
-        : base(httpClient, typeUid, pathUrl, httpMethod) { }
+    public TypeObj typeObj;
+    public PrepareHttpInsert(HttpClient httpClient, TypeObj typeObj, string pathUrl, HttpMethod httpMethod)
+        : base(httpClient, typeObj.Uid, pathUrl, httpMethod) 
+    {
+        this.typeObj = typeObj;
+    }
 
     public async new Task<int> Execute()
     {
         // if data wasn't provided then throw an exception
         if (webData == null) throw new Exception("Field webData is null. Need data to upload to server");
 
-        var request = new HttpRequestMessage(httpMethod, pathUrl);
+        var request = new HttpRequestMessage(httpMethod, pathUrl + typeObj.Uid);
 
         request.Content = new StringContent(JsonConvert.SerializeObject(webData), Encoding.UTF8, "application/json");
 
@@ -266,8 +270,23 @@ public class PrepareHttpInsert : PrepareHttpBase<int>
         return int.Parse(body.Replace("\"", String.Empty));
     }
 
+    /// <summary>
+    /// Создать новый WebItem с названием name и значением value, Если такой WebItem уже есть 
+    /// тогда заменит значение в данном WebItem с названием name. Перед созданием происходит проверка
+    /// названия WebItem name, есть ли похожее поле в Объекте Elma, если нет тогда выбросит ошибку
+    /// </summary>
     public PrepareHttpInsert WebItem(string name, string value)
     {
+        // check if the name exists for certain object elma which the WebItem creating
+        // if the Name Of creating Item don't specified then throw Exception
+        if (!this.typeObj.NamesFields.Contains(name))
+        {
+            throw new Exception(
+                $"Elma Object \"{typeObj.Name}\", don't have field \"{name}\". "
+                + $"Available fileds: {String.Join(", ", typeObj.NamesFields)}"
+            );
+        }
+
         this.webData ??= new WebData();
         this.webData.Items ??= new List<WebDataItem>();
 
@@ -280,9 +299,25 @@ public class PrepareHttpInsert : PrepareHttpBase<int>
 
         return this;
     }
-
+    
+    /// <summary>
+    /// Создать новый WebItem с названием nameObject и значением вложенного WebItem c названием nameItem и значением value, 
+    /// Если такой WebItem c nameObject уже есть тогда уже нет потребшности заменять его, будет происходить замена
+    /// уже вложенных WebItem если будет совпадение по названию nameItem. Перед созданием происходит проверка
+    /// названия WebItem name, есть ли похожее поле в Объекте Elma, если нет тогда выбросит ошибку
+    /// </summary>
     public PrepareHttpInsert WebItem(string nameObject, string nameItem, string value) 
     {
+        // check if the name exists for certain object elma which the WebItem creating
+        // if the Name Of creating Item don't specified then throw Exception
+        if (!this.typeObj.NamesFields.Contains(nameObject))
+        {
+            throw new Exception(
+                $"Elma Object \"{typeObj.Name}\", don't have field \"{nameObject}\". "
+                + $"Available fileds: {String.Join(", ", typeObj.NamesFields)}"
+            );
+        }
+
         this.webData ??= new WebData();
         this.webData.Items ??= new List<WebDataItem>();
 

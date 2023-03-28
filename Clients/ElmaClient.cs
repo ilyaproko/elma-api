@@ -146,21 +146,7 @@ public class ElmaClient
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        return new PrepareHttpInsert(_httpClient, getTypeObj.Uid, UrlEntityInsert, HttpMethod.Post);
-
-        // var request = new HttpRequestMessage(HttpMethod.Post, UrlEntityInsert + getTypeObj.Uid);
-
-        // request.Content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
-
-        // request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
-        // {
-        //     CharSet = "utf-8"
-        // };
-
-        // var response = await _httpClient.SendAsync(request);
-        // var body = await response.Content.ReadAsStringAsync();
-
-        // return int.Parse(body.Replace("\"", String.Empty));
+        return new PrepareHttpInsert(_httpClient, getTypeObj, UrlEntityInsert, HttpMethod.Post);
     }
 
     /// <summary> update entity via id with new data </summary>
