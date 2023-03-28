@@ -81,23 +81,23 @@ public class ElmaClient
     /// получение сущностей (объект-справочник) от сервера elma
     /// </summary>
     /// <param name="type">имя униклього идентификтора типа сущности elma</param>
-    public PrepareHttpRequestElma<List<WebData>> QueryEntity(string type) // QParams queryParams = null
+    public PrepareHttpQuery<List<WebData>> QueryEntity(string type) // QParams queryParams = null
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        return new PrepareHttpRequestElma<List<WebData>>(_httpClient, getTypeObj.Uid, UrlEntityQueryTree, HttpMethod.Get);
+        return new PrepareHttpQuery<List<WebData>>(_httpClient, getTypeObj.Uid, UrlEntityQueryTree, HttpMethod.Get);
     }
 
     /// <summary>
     /// get a certain entity by Its id
     /// </summary>
-    public PrepareHttpRequestElma<WebData> LoadEntity(string type, int id)
+    public PrepareHttpLoad<WebData> LoadEntity(string type, int id)
     {
         // получаем тип обьекта по его наименованию и его TypeUID для запросов
         var getTypeObj = this.GetTypeObj(type, TypesObj.Entity);
 
-        return new PrepareHttpRequestElma<WebData>(_httpClient, getTypeObj.Uid, UrlEntityLoadTree, HttpMethod.Get).Id(id);
+        return new PrepareHttpLoad<WebData>(_httpClient, getTypeObj.Uid, UrlEntityLoadTree, HttpMethod.Get, id);
     }
 
     /// <summary>
