@@ -138,7 +138,7 @@ class Program
         // для выборки массива данных с возможностями фильтрации через методы Eql или Filter
         var result2 = await elmaClient.QueryEntity("Praktiki").Limit(10).Offset(50)
             .Select("DataS").Filter("Kurs:2").Eql("not DataS is null").Execute(); // или можно так Semestr = 2 AND Kurs = 2
-        
+
         var result3 = await elmaClient.LoadEntity("Praktiki", id: 4508).Select("Kurs").Execute();
 
         var result4 = elmaClient.InsertEntity("Praktiki");
@@ -158,26 +158,22 @@ class Program
         var updatedObj = await result5.Execute();
         System.Console.WriteLine("updated: " + updatedObj);
 
+        System.Console.WriteLine( elmaClient.getEnumValue("Pol", "Zhenskiy") );
+        System.Console.WriteLine( elmaClient.getEnumValue("Pol", "Muzhskoy") );
 
-        // System.Console.WriteLine(JsonConvert.SerializeObject(result2));
-        // System.Console.WriteLine(injectNewObj);
-        // System.Console.WriteLine(JsonConvert.SerializeObject(result4.webData));
+        try { elmaClient.getEnumValue("Pollllll", "Muzhskoy"); }
+        catch (Exception e) { System.Console.WriteLine(e.Message); }
+        try { elmaClient.getEnumValue("Pol", "jiojpoijj"); }
+        catch (Exception e) { System.Console.WriteLine(e.Message); }
 
+        await elmaClient.InsertEntity("Studenty")
+            .WebItem("Pol", elmaClient.getEnumValue("Pol", "Zhenskiy"))
+            .WebItem("Imya", "testFirstName")
+            .WebItem("Otchestvo", "testOtchestvo")
+            .WebItem("Familiya", "testFamilya")
+            .WebItem("Gruppa", "Id", "4586") // ссылка на внешний объект справочник Элмы
+            .Execute();
 
-
-
-        // var data = new Data()
-        // {
-        //     Items = new List<Item>() {
-        //         new Item() { Name = "Naimenovanie", Value = "updating name test"}
-        //     }
-        // };
-
-        // var result4 = await elmaClient.UpdateEntity("UchebnyePlany",
-        //     id: result3, 
-        //     data);
-
-        // System.Console.WriteLine("updated entity with id: " + result4);
 
 
 

@@ -19,6 +19,7 @@ public class ElmaClient
     private ResponseAuthorization AuthorizationData;
     private List<TypeObj> TypesUidEntities; // all available entities in elma
     private List<TypeObj> TypesUidProcesses; // all available processes in elma
+    public List<TypeEnum> Enums; // all available enums in server elma
     // url to get authorization token from elma server for requests
     private readonly string UrlAuthorization = "/API/REST/Authorization/LoginWith";
     // url to get entities from elma server
@@ -42,6 +43,10 @@ public class ElmaClient
     private readonly string UrlPageTypes = "/API/Help/Types";
     // url to html page with specific Object's information (also will need UrlParameter 'uid')
     private readonly string UrlPageType = "/API/Help/Type";
+    // url to html page with all available Enums in Server Elma
+    private readonly string UrlPageEnums = "/API/Help/Enums";
+    // url to html page with specifit Enum's information (also will need UrlParameter 'uid')
+    private readonly string UrlPageEnum = "/API/Help/Enum";
 
     public ElmaClient(string elmaTokenApi, string hostaddress, string username, string password)
     {
@@ -59,7 +64,65 @@ public class ElmaClient
         await GetAuthorization();
         await GetTypesUid();
         await GetNamesItemsForObjects();
+        await GetEnumsElma();
         return this;
+    }
+
+    /// <summary>
+    /// get all enums with their values in server elma and add them to storage Enums
+    /// </summary>
+    public async Task GetEnumsElma() 
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, UrlPageEnums);
+
+        var response = await _httpClient.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(body);
+
+        var nodesHtml = htmlDoc.DocumentNode.SelectNodes("//body/table/tr")
+            .Select(node => $"<body>{node.InnerHtml.Trim()}</body>").ToList();
+        
+        foreach (var node in nodesHtml)
+        {
+            htmlDoc.LoadHtml(node);
+            var tdNodes = htmlDoc.DocumentNode.SelectNodes("body/td");
+
+            // if the tdNode doesn't have 2 elements then skip it iteration
+            if (tdNodes.Count != 2) continue;
+            // if first element doesn't have attribute href with start value href="/API/Help/Enum?uid=
+            // then skip it iteration
+            if (!tdNodes[0].InnerHtml.Contains("href=\"/API/Help/Enum?uid=")) continue;
+
+            var nameEnum = tdNodes[0].InnerText.Trim();
+            var descEnum = tdNodes[1].InnerText.Trim();
+            var uidEnum = htmlDoc.DocumentNode.SelectSingleNode("//@href")
+                .GetAttributeValue("href", null).Substring(19);
+
+            var requestEnum = new HttpRequestMessage(HttpMethod.Get, $"{UrlPageEnum}?uid={uidEnum}");
+
+            var responseEnum = await _httpClient.SendAsync(requestEnum);
+            var bodyEnum = await responseEnum.Content.ReadAsStringAsync();
+
+            htmlDoc.LoadHtml(bodyEnum);
+            var nodesValueEnum = htmlDoc.DocumentNode.SelectNodes("//body/table/tr/td[1]");
+            
+            var getEnumValues = nodesValueEnum != null 
+                ? nodesValueEnum.Select(node => node.InnerText.Trim()).ToArray()
+                : null;
+
+            Enums ??= new List<TypeEnum>();
+            Enums.Add(
+                new TypeEnum 
+                {
+                    Name = nameEnum,
+                    Uid = uidEnum,
+                    NameDesc = descEnum,
+                    Values = getEnumValues
+                }
+            );
+        }
     }
 
     public async Task GetNamesItemsForObjects()
@@ -270,6 +333,30 @@ public class ElmaClient
                 + $"to the server, access to the one");
         }
         return tryFind;
+    }
+
+    public string getEnumValue(string nameEnum, string valueEnum)
+    {
+        var tryFindEnum = Enums.FirstOrDefault(enumElma =>
+            enumElma.Name == nameEnum);
+
+        // if enum with name 'nameEnum' is not existed in storage then throw exception
+        if (tryFindEnum == null)
+            throw new Exception($"Enum with name: '{nameEnum}' isn't existed in storage");
+
+        // if the found enum don't have any Values then throw exception
+        if (tryFindEnum.Values == null)
+            throw new Exception($"The enum '{nameEnum}' don't have any values");
+
+
+        var tryFindIndexOfValue = Array.IndexOf(tryFindEnum.Values, valueEnum);
+
+        // if the value 'valueEnum' doesn't exist in storage the found enum, throw exception
+        if (tryFindIndexOfValue == -1)
+            throw new Exception($"The enum '{nameEnum}' doesn't have value '{valueEnum}'."
+                + $" All values: {String.Join(",", tryFindEnum.Values)}");
+
+        return tryFindIndexOfValue.ToString();
     }
 
     /// <summary>

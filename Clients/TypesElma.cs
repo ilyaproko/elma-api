@@ -25,7 +25,7 @@ public class WebDataItem
 // * ///////////////////////////////////////////// Main Response with Entities
 
 /// <summary>
-/// All name TypeUid is unique and can't be repeated (it's fair for Processes and Entities)
+/// every Uid is unique and can't be repeated (it's fair for Processes and Entities)
 /// </summary>
 public class TypeObj 
 {
@@ -34,6 +34,18 @@ public class TypeObj
     public string Uid { get; set; } 
     public string NameDesc { get; set; }
     public List<string> NamesFields { get; set; }
+}
+/// <summary>
+/// Enum from Server Elma, every Uid is unique and can't be repeated
+/// </summary>
+public class TypeEnum
+{
+    public string Name { get; set; }
+    /// <summary> уникальный идентификатор типа </summary>
+    public string Uid { get; set; } 
+    public string NameDesc { get; set; }
+    /// <summary> Can be NULL !!! </summary>
+    public string[] Values { get; set; }
 }
 public enum TypesObj 
 {
