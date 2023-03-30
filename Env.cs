@@ -62,7 +62,6 @@ class EnvModule
 
     public string getVar(string key)
     {
-
         foreach (EnvRecord record in this.envsList)
         {
             if (record.key == key)

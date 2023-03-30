@@ -16,6 +16,7 @@ using Client;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using TypesElma;
+using Upload.XmlFile;
 
 namespace ELMA_API;
 class Program
@@ -48,7 +49,7 @@ class Program
         // var elmaApi = new ElmaApi(baseHttp);
 
         // экземпляр базы данных MsSql Server
-        var dbMsSql = new DbMsSql(dataSourceDb, initialCatalogDb);
+        // var dbMsSql = new DbMsSql(dataSourceDb, initialCatalogDb);
 
         // экземпляр предоставляющий допоплнительные 
         // возможности работы с elma
@@ -60,6 +61,9 @@ class Program
 
         // выгрузка данных на сервер elma из excel файлов
         // var uploadExcel = new UploadExcel(baseHttp, elmaApi);
+
+        // создание экземпляра класса по работе с данными в файле формата .xml
+        var uploadXml = new UploadXml();
 
         // * раздел для выгрузки данных из БД деканата в Elma
         // спинер Информирующий о Стутесе Процесса Программы
@@ -132,50 +136,14 @@ class Program
         //     possiElma.Update_appendixes_three("", ctx);
         // });
 
-
         var elmaClient = await new ElmaClient(token, hostaddress, username, password).Build();
 
         // для выборки массива данных с возможностями фильтрации через методы Eql или Filter
-        var result2 = await elmaClient.QueryEntity("Praktiki").Limit(10).Offset(50)
+        var result2 = await elmaClient.QueryEntity("Praktiki").Limit(2).Offset(50)
             .Select("DataS").Filter("Kurs:2").Eql("not DataS is null").Execute(); // или можно так Semestr = 2 AND Kurs = 2
 
-        var result3 = await elmaClient.LoadEntity("Praktiki", id: 4508).Select("Kurs").Execute();
 
-        var result4 = elmaClient.InsertEntity("Praktiki");
-        result4.WebItem("Kurs", "1");
-        result4.WebItem("Semestr", "2");
-        result4.WebItem("Disciplina", "Id", "12");
-        result4.WebItem("KodKafedry", "1234567890");
-        result4.WebItem("Kurs", "10");
-
-        var injectNewObj = await result4.Execute();
-        System.Console.WriteLine("new: " + injectNewObj);
-
-        var result5 = elmaClient.UpdateEntity("Praktiki", injectNewObj);
-        result5.WebItem("Semestr", "1000");
-        result5.WebItem("Disciplina", "Id", "995");
-
-        var updatedObj = await result5.Execute();
-        System.Console.WriteLine("updated: " + updatedObj);
-
-        System.Console.WriteLine( elmaClient.getEnumValue("Pol", "Zhenskiy") );
-        System.Console.WriteLine( elmaClient.getEnumValue("Pol", "Muzhskoy") );
-
-        try { elmaClient.getEnumValue("Pollllll", "Muzhskoy"); }
-        catch (Exception e) { System.Console.WriteLine(e.Message); }
-        try { elmaClient.getEnumValue("Pol", "jiojpoijj"); }
-        catch (Exception e) { System.Console.WriteLine(e.Message); }
-
-        await elmaClient.InsertEntity("Studenty")
-            .WebItem("Pol", elmaClient.getEnumValue("Pol", "Zhenskiy"))
-            .WebItem("Imya", "testFirstName")
-            .WebItem("Otchestvo", "testOtchestvo")
-            .WebItem("Familiya", "testFamilya")
-            .WebItem("Gruppa", "Id", "4586") // ссылка на внешний объект справочник Элмы
-            .Execute();
-
-
-
+        // uploadXml.UploadEmployeesSubadi(@"\\qnap\Buh02");
 
     }
 }

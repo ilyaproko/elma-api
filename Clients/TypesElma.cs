@@ -169,6 +169,11 @@ public class PrepareHttpBase<T> : QParamsBase, IPrepareHttpBase<T>
 
         var response = await _httpClient.SendAsync(request);
 
+        // if response from server wan't equels 200 (successful result), then throw exception
+        if ((int)response.StatusCode != 200)
+            throw new Exception("Bad request, server's body response:> " 
+                + await response.Content.ReadAsStringAsync());
+
         return await response.Content.ReadFromJsonAsync<T>();
     }
 }
@@ -277,6 +282,12 @@ public class PrepareHttpInsertOrUpdate : PrepareHttpBase<int>
         };
         
         var response = await _httpClient.SendAsync(request);
+
+        // if response from server wan't equels 200 (successful result), then throw exception
+        if ((int)response.StatusCode != 200)
+            throw new Exception("Bad request, server's body response:> " 
+                + await response.Content.ReadAsStringAsync());
+
         var body = await response.Content.ReadAsStringAsync();
 
         return int.Parse(body.Replace("\"", String.Empty));

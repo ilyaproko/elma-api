@@ -158,6 +158,12 @@ public class ElmaClient
         request.Content = new StringContent($"\"{Password}\"", Encoding.UTF8, "application/json");
 
         var response = await _httpClient.SendAsync(request);
+
+        // if server return response with 'bad request' then throw exception about the error
+        if ((int)response.StatusCode != 200)
+            throw new Exception($"Get authorization was unsuccessful. "
+                + "Check parameters authorization: hostaddress, password, token, userlogin");
+
         this.AuthorizationData = await response.Content.ReadFromJsonAsync<ResponseAuthorization>();
 
         // automatically add tokens to every request's headers form this client to server http
